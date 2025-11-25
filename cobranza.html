@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registrar Movimiento Tarjeta</title>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <style>
+    body { font-family: 'Montserrat', Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; min-height: 100vh; }
+    .page-header { background: #E17223; color: #fff; padding: 23px 42px 19px 42px; display: flex; align-items: center; justify-content: space-between; }
+    .page-header h1 { margin: 0; font-size: 1.7em; font-weight: bold; display: flex; align-items: center; gap: 12px; letter-spacing: 1px; }
+    .header-icon { font-size: 1.1em; margin-right: 9px; }
+
+    .main-content { max-width: 1160px; margin: 34px auto 0 auto; background: #fff; border-radius: 13px; box-shadow: 0 4px 28px #e4e4e4c2; padding: 36px 38px 18px 38px; }
+    .section-title { color: #E17223; font-size: 1.42em; font-weight: bold; margin-bottom: 9px; margin-top: 0; }
+
+    .file-row { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+    .custom-file-input { display: none; }
+    .custom-label { background: #E17223; color: #fff; padding: 9px 24px; border-radius: 8px; font-size: 1em; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px #e1722333; transition: background 0.2s; border: none; margin-right: 2px; margin-bottom: 2px; min-width: 185px; text-align: center; display: inline-block; }
+    .custom-label:hover { background: #bb5400; }
+    .file-name { font-size: 1em; color: #555; margin-left: 6px; min-width: 170px; }
+
+    .search-row { margin-bottom: 12px; }
+    .search-input { width: 100%; border: 1.5px solid #e3e3e3; border-radius: 6px; padding: 9px 13px 9px 36px; font-size: 1em; background: #faf9f7 url('https://img.icons8.com/ios-filled/18/999999/search--v1.png') 10px 50% no-repeat; outline: none; transition: border-color 0.2s; }
+    .search-input:focus { border-color: #E17223; }
+
+    .table-container { margin-top: 16px; max-width: 100%; background: #fff; border-radius: 10px; box-shadow: 0 1px 6px #f0dbcd7e; padding: 10px 0 6px 0; position: relative; }
+    .top-scroll { overflow-x: auto; overflow-y: hidden; height: 14px; margin: 0 10px 6px 10px; }
+    .top-scroller { height: 1px; }
+    .table-scroll { overflow-x: auto; margin: 0 10px 0 10px; }
+
+    table { border-collapse: separate; border-spacing: 0; width: 100%; background: #fff; border-radius: 10px 10px 0 0; min-width: 950px; }
+    th, td { padding: 10px 12px; text-align: left; }
+    th { background: #E17223; color: #fff; font-weight: bold; border-bottom: 3px solid #be550f; font-size: 1em; letter-spacing: 1px; position: sticky; top: 0; z-index: 1; }
+    td { border-bottom: 1px solid #f1e3d7; font-size: 0.98em; color: #6d6d6d; white-space: pre-wrap; }
+
+    .page-footer { display: flex; justify-content: flex-end; gap: 16px; padding: 18px 38px 32px 38px; background: #fff; margin-bottom: 0; border-radius: 0 0 13px 13px; }
+    .register-btn { background: #E17223; color: #fff; border: none; padding: 10px 33px 10px 29px; border-radius: 8px; font-size: 1.08em; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
+    .register-btn:hover { background: #bb5400; }
+    .close-footer-btn { background: #616161; color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .close-footer-btn:hover { background: #444; }
+
+    ::-webkit-scrollbar { height: 8px; }
+    ::-webkit-scrollbar-thumb { background: #e7a169; border-radius: 6px; }
+    ::-webkit-scrollbar-track { background: #f6e6da; }
+
+    @media (max-width: 900px) {
+      .main-content, .page-footer { padding: 15px; }
+      .page-header { padding: 13px 15px 12px 15px; }
+      table { min-width: 700px; font-size: 0.98em; }
+      .file-row { flex-direction: column; align-items: stretch; }
+      .custom-label { width: 100%; }
+      .file-name { margin: 5px 0 0 0; }
+      .page-footer { flex-direction: column; align-items: stretch; gap: 8px; }
+    }
+
+    /* Overlay + spinner */
+    .spinner-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    .hidden { display: none; }
+    .spinner { width: 48px; height: 48px; border: 5px solid rgba(255,255,255,0.4); border-top-color: #E17223; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="page-header">
+  <h1>
+    <i class="bi bi-credit-card-2-front header-icon" aria-hidden="true"></i>
+    Registrar Movimiento Tarjeta
+  </h1>
+</div>
+  <div class="main-content">
+    <div class="section-title">Movimiento Tarjeta</div>
+
+    <div class="file-row">
+      <label for="file-input" class="custom-label">Seleccionar archivo</label>
+      <input type="file" id="file-input" class="custom-file-input" accept=".xlsx,.xls" />
+      <span id="file-name" class="file-name">Ningún archivo seleccionado</span>
+    </div>
+
+    <div class="search-row">
+      <input type="text" id="search-input" class="search-input" placeholder="🔍 Buscar por artículo..." />
+    </div>
+
+    <div class="table-container" id="table-container">
+      <div id="top-scroll" class="top-scroll" aria-hidden="true">
+        <div id="top-scroller" class="top-scroller"></div>
+      </div>
+      <div id="table-scroll" class="table-scroll">
+        <table id="excel-table">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <button id="btn-registrar" class="register-btn"><span style="font-size:1.15em;">💾</span> Registrar</button>
+    <button class="close-footer-btn" onclick="window.location.reload()">Cerrar</button>
+  </div>
+
+  <!-- Overlay de carga -->
+  <div id="spinner-overlay" class="spinner-overlay hidden" aria-live="polite" aria-busy="true">
+    <div class="spinner" role="status" aria-label="Cargando"></div>
+  </div>
+
+  <script>
+    // ================== Config ==================
+    const API_URL = "https://appsapventasapi.azurewebsites.net/api/cobranza/MovimientoTarjetaAsync";
+
+    // ================== Excel & UI refs ==================
+    const fileInput   = document.getElementById('file-input');
+    const fileNameEl  = document.getElementById('file-name');
+    const excelTable  = document.getElementById('excel-table');
+    const topScroll   = document.getElementById('top-scroll');
+    const topScroller = document.getElementById('top-scroller');
+    const tableScroll = document.getElementById('table-scroll');
+    const spinnerEl   = document.getElementById('spinner-overlay');
+    const btnRegistrar = document.getElementById('btn-registrar');
+    const searchInput = document.getElementById('search-input');
+
+    let excelData = []; // header + filas
+    let numCols   = 0;
+
+    function showSpinner(){ spinnerEl.classList.remove('hidden'); }
+    function hideSpinner(){ spinnerEl.classList.add('hidden'); }
+    function disableBtn(btn, d){ btn.disabled = d; btn.style.opacity = d ? .6 : 1; btn.style.cursor = d ? 'not-allowed' : 'pointer'; }
+
+    // ================ LECTURA EXCEL ================
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) { resetTable(); return; }
+      fileNameEl.textContent = file.name;
+
+      const reader = new FileReader();
+      showSpinner();
+      reader.onload = (evt) => {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+
+          const rng = XLSX.utils.decode_range(worksheet['!ref']);
+          numCols = (rng.e.c - rng.s.c + 1);
+
+          const json = XLSX.utils.sheet_to_json(worksheet, {
+            header: 1, blankrows: true, defval: "", raw: false, dateNF: "hh:mm:ss"
+          });
+
+          excelData = json;
+          renderTable(json);
+          syncScrollers();
+        } catch (err) {
+          console.error(err);
+          alert('Ocurrió un error al leer el archivo.');
+          resetTable();
+        } finally { hideSpinner(); }
+      };
+      reader.onerror = () => { hideSpinner(); alert('No se pudo leer el archivo.'); };
+      reader.readAsArrayBuffer(file);
+    });
+
+    function resetTable() {
+      fileNameEl.textContent = "Ningún archivo seleccionado";
+      excelTable.querySelector('thead tr').innerHTML = "";
+      excelTable.querySelector('tbody').innerHTML = "";
+      excelData = []; numCols = 0; topScroller.style.width = "0px";
+      topScroll.scrollLeft = 0; tableScroll.scrollLeft = 0;
+    }
+
+    function renderTable(json) {
+      const theadRow = excelTable.querySelector('thead tr');
+      const tbody    = excelTable.querySelector('tbody');
+      theadRow.innerHTML = ""; tbody.innerHTML = "";
+      if (!json.length || numCols === 0) return;
+
+      for (let c = 0; c < numCols; c++) {
+        const header = (json[0] && json[0][c] !== undefined) ? json[0][c] : "";
+        theadRow.insertAdjacentHTML("beforeend", `<th>${escapeHtml(header)}</th>`);
+      }
+      for (let i = 1; i < json.length; i++) {
+        const row = json[i] || [];
+        let tds = "";
+        for (let c = 0; c < numCols; c++) {
+          const cell = (row[c] !== undefined && row[c] !== null) ? row[c] : "";
+          tds += `<td>${escapeHtml(formatMaybeDate(cell))}</td>`;
+        }
+        tbody.insertAdjacentHTML("beforeend", `<tr>${tds}</tr>`);
+      }
+      requestAnimationFrame(() => { topScroller.style.width = excelTable.scrollWidth + "px"; });
+    }
+
+    function syncScrollers() {
+      topScroll.onscroll = null; tableScroll.onscroll = null;
+      topScroll.addEventListener('scroll', () => { tableScroll.scrollLeft = topScroll.scrollLeft; }, { passive: true });
+      tableScroll.addEventListener('scroll', () => { topScroll.scrollLeft = tableScroll.scrollLeft; }, { passive: true });
+      topScroller.style.width = excelTable.scrollWidth + "px";
+    }
+    window.addEventListener('resize', () => { topScroller.style.width = excelTable.scrollWidth + "px"; });
+
+    // ================ Normalizadores (solo para vista) ================
+    function formatMaybeDate(value) {
+      if (value instanceof Date && !isNaN(value)) {
+        const hh = String(value.getHours()).padStart(2,"0");
+        const mm = String(value.getMinutes()).padStart(2,"0");
+        const ss = String(value.getSeconds()).padStart(2,"0");
+        return `${hh}:${mm}:${ss}`;
+      }
+      return value;
+    }
+    function escapeHtml(text) {
+      const map = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' };
+      return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // ================ Búsqueda ================
+    searchInput.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      if (!excelData.length) return;
+      const header = excelData[0] || [];
+      const body = excelData.slice(1);
+      const filteredBody = body.filter(row => (row || []).some(cell => String(cell ?? '').toLowerCase().includes(term)));
+      const filtered = [header].concat(filteredBody);
+      renderTable(filtered);
+      syncScrollers();
+    });
+
+    // ================ Mapeo a OBJETO EXACTO ================
+    const TARGET_KEYS = [
+      "Codigo","Producto","TipoMovimiento","FechaProceso","FechaLote","LoteManual","Voucher","Autorizacion",
+      "Cuotas","Tarjeta","FechaConsumo","Importe","Estado","Comision","ComisionAfecta","IGV",
+      "NetoParcial","NetoTotal","FechaAbono","TipoTarjeta","BancoEmisor","Entidad","HoraTransaccion"
+    ];
+    const ALIASES = {
+      "codigo":"Codigo","código":"Codigo",
+      "producto":"Producto",
+      "tipomovimiento":"TipoMovimiento","tipo movimiento":"TipoMovimiento","tipo_mov":"TipoMovimiento","tipo mov":"TipoMovimiento",
+      "fechaproceso":"FechaProceso","fecha proceso":"FechaProceso","fecha_proceso":"FechaProceso",
+      "fechalote":"FechaLote","fecha lote":"FechaLote","fecha_lote":"FechaLote",
+      "lotemanual":"LoteManual","lote manual":"LoteManual","lote_manual":"LoteManual",
+      "voucher":"Voucher",
+      "autorizacion":"Autorizacion","autorización":"Autorizacion",
+      "cuotas":"Cuotas",
+      "tarjeta":"Tarjeta",
+      "fechaconsumo":"FechaConsumo","fecha consumo":"FechaConsumo","fecha_consumo":"FechaConsumo",
+      "importe":"Importe",
+      "estado":"Estado","status":"Estado",
+      "comision":"Comision","comisión":"Comision",
+      "comisionafecta":"ComisionAfecta","comision afecta":"ComisionAfecta","comision_afecta":"ComisionAfecta",
+      "igv":"IGV",
+      "netoparcial":"NetoParcial","neto parcial":"NetoParcial","neto_parcial":"NetoParcial",
+      "netototal":"NetoTotal","neto total":"NetoTotal","neto_total":"NetoTotal",
+      "fechaabono":"FechaAbono","fecha abono":"FechaAbono","fecha_abono":"FechaAbono",
+      "tipotarjeta":"TipoTarjeta","tipo tarjeta":"TipoTarjeta","tipo_tarjeta":"TipoTarjeta",
+      "bancoemisor":"BancoEmisor","banco emisor":"BancoEmisor","banco_emisor":"BancoEmisor",
+      "entidad":"Entidad",
+      "horatransaccion":"HoraTransaccion","hora transaccion":"HoraTransaccion","hora transacción":"HoraTransaccion","hora trx":"HoraTransaccion"
+    };
+    function norm(s) {
+      return String(s || "").trim().toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/_/g, " ").replace(/\s+/g, " ");
+    }
+    function headerMap(headerRow) {
+      const map = {}; const normalized = headerRow.map(h => norm(h));
+      TARGET_KEYS.forEach(target => {
+        const targetNorm = norm(target);
+        let idx = normalized.indexOf(targetNorm);
+        if (idx === -1) {
+          const aliasKey = Object.keys(ALIASES).find(a => ALIASES[a] === target && normalized.includes(a));
+          idx = aliasKey ? normalized.indexOf(aliasKey) : -1;
+        }
+        map[target] = idx;
+      });
+      return map;
+    }
+
+    // ---- Fechas y horas a formato fijo ----
+    function excelSerialToDate(serial){
+      const utc_days = Math.floor(serial - 25569);
+      const utc_value = utc_days * 86400;
+      const d = new Date(utc_value * 1000);
+      const fractional = serial - Math.floor(serial) + 1e-7;
+      let total = Math.floor(86400 * fractional);
+      const ss = total % 60; total = Math.floor(total/60);
+      const mm = total % 60; const hh = Math.floor(total/60);
+      d.setUTCHours(hh, mm, ss, 0); return d;
+    }
+    function pad2(n){ return String(n).padStart(2,"0"); }
+    function parseDMYStringToDDMMYYYY(str) {
+      const s = String(str).trim();
+      const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+      if (!m) return s;
+      let d = parseInt(m[1],10), mo = parseInt(m[2],10), y = parseInt(m[3],10);
+      if (y < 100) y = 2000 + y;
+      if (d < 1 || d > 31 || mo < 1 || mo > 12) return s;
+      return `${pad2(d)}/${pad2(mo)}/${y}`;
+    }
+    function formatDateLike(value) {
+      if (value === "" || value == null) return "";
+      if (value instanceof Date && !isNaN(value)) {
+        return `${pad2(value.getDate())}/${pad2(value.getMonth()+1)}/${value.getFullYear()}`;
+      }
+      if (typeof value === "number") {
+        const d = excelSerialToDate(value);
+        return `${pad2(d.getUTCDate())}/${pad2(d.getUTCMonth()+1)}/${d.getUTCFullYear()}`;
+      }
+      return parseDMYStringToDDMMYYYY(value);
+    }
+    function formatTimeLike(value) {
+      if (value === "" || value == null) return "";
+      if (value instanceof Date && !isNaN(value)) {
+        return `${pad2(value.getHours())}:${pad2(value.getMinutes())}:${pad2(value.getSeconds())}`;
+      }
+      if (typeof value === "number") {
+        const total = Math.round(value * 24 * 60 * 60);
+        const hh = pad2(Math.floor(total/3600)%24);
+        const mm = pad2(Math.floor((total%3600)/60));
+        const ss = pad2(total%60);
+        return `${hh}:${mm}:${ss}`;
+      }
+      const s = String(value).trim();
+      const m = s.match(/^(\d{1,2})(?::(\d{1,2}))?(?::(\d{1,2}))?$/);
+      if (m) {
+        const hh = pad2(parseInt(m[1]||"0",10)%24);
+        const mm = pad2(parseInt(m[2]||"0",10)%60);
+        const ss = pad2(parseInt(m[3]||"0",10)%60);
+        return `${hh}:${mm}:${ss}`;
+      }
+      return s;
+    }
+
+    function toNumberOrNull(v){ if (v===""||v==null) return null; const s=String(v).replace(/\./g,"").replace(",","."); const n=Number(s); return isNaN(n)?null:n; }
+    function toIntOrZero(v){ if (v===""||v==null) return 0; const n=parseInt(String(v),10); return isNaN(n)?0:n; }
+
+    function buildRecords(matrix){
+      if (!matrix || matrix.length===0) return [];
+      const header = matrix[0] || [];
+      const map = headerMap(header);
+      const rows = matrix.slice(1);
+
+      const records = rows.map(row => {
+        const get = key => { const idx = map[key]; return (idx===-1)? "" : (row[idx] ?? ""); };
+
+        return {
+          Codigo:           get("Codigo"),
+          Producto:         get("Producto"),
+          TipoMovimiento:   get("TipoMovimiento"),
+          FechaProceso:     formatDateLike(get("FechaProceso")),
+          FechaLote:        formatDateLike(get("FechaLote")),
+          LoteManual:       get("LoteManual"),
+          Voucher:          get("Voucher"),
+          Autorizacion:     get("Autorizacion"),
+          Cuotas:           toIntOrZero(get("Cuotas")),
+          Tarjeta:          get("Tarjeta"),
+          FechaConsumo:     formatDateLike(get("FechaConsumo")),
+          Importe:          toNumberOrNull(get("Importe")),
+          Estado:           get("Estado"),
+          Comision:         toNumberOrNull(get("Comision")),
+          ComisionAfecta:   toNumberOrNull(get("ComisionAfecta")),
+          IGV:              toNumberOrNull(get("IGV")),
+          NetoParcial:      toNumberOrNull(get("NetoParcial")),
+          NetoTotal:        toNumberOrNull(get("NetoTotal")),
+          FechaAbono:       formatDateLike(get("FechaAbono")),
+          TipoTarjeta:      get("TipoTarjeta"),
+          BancoEmisor:      get("BancoEmisor"),
+          Entidad:          get("Entidad"),
+          HoraTransaccion:  formatTimeLike(get("HoraTransaccion"))
+        };
+      });
+
+      // Filtra filas completamente vacías
+      return records.filter(r => Object.values(r).some(v => v !== "" && v !== null));
+    }
+
+    function buildMatrixFromRenderedTable(){
+      const headerCells = Array.from(excelTable.querySelectorAll("thead th"));
+      const bodyRows = Array.from(excelTable.querySelectorAll("tbody tr"));
+      const header = headerCells.map(th => th.textContent);
+      const rows = bodyRows.map(tr => Array.from(tr.children).map(td => td.textContent));
+      return [header, ...rows];
+    }
+
+    // ======= Click Registrar (flujo .then + Swal) =======
+    btnRegistrar.addEventListener('click', () => {
+      if (!excelData.length) {
+        if (window.Swal) Swal.fire({ icon: 'warning', text: 'Primero carga un archivo Excel.' });
+        else alert('Primero carga un archivo Excel.');
+        return;
+      }
+
+      const registros = buildRecords(excelData); // o buildMatrixFromRenderedTable() si quieres solo lo filtrado
+      if (!registros.length) {
+        if (window.Swal) Swal.fire({ icon: 'warning', text: 'No hay registros válidos para enviar.' });
+        else alert('No hay registros válidos para enviar.');
+        return;
+      }
+
+      showSpinner();
+      disableBtn(btnRegistrar, true);
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(registros)
+      })
+      .then(res => {
+        // Intenta parsear JSON; si no hay body JSON, devuelve null
+        return res.json().catch(() => null).then(data => ({ ok: res.ok, data }));
+      })
+      .then(({ ok, data }) => {
+        if (!ok) {
+          // si la API respondió error, muestra mensaje estándar
+          if (window.Swal) Swal.fire({ icon: 'error', text: 'No se pudo registrar el producto. Intenta nuevamente.' });
+          else alert('No se pudo registrar el producto. Intenta nuevamente.');
+          return;
+        }
+
+        // Condición pedida: éxito cuando data === true (o permite {success:true})
+        if (data === true || (data && data.success === true)) {
+          if (window.Swal) Swal.fire({ icon: 'success', text: '✅ Producto registrado con éxito.' });
+          else alert('Producto registrado con éxito ✅');
+
+          // --- Limpieza UI ---
+          resetTable();
+          fileInput.value = '';
+          searchInput.value = '';
+
+          // --- Hooks externos (si existen) ---
+          if (typeof limpiarFormulario === 'function') {
+            try { limpiarFormulario(); } catch(e) { console.warn('limpiarFormulario lanzó error:', e); }
+          }
+
+          const modalEl = document.getElementById('modalFormularioCatalogo');
+          if (modalEl && window.bootstrap?.Modal) {
+            try {
+              const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+              modal.hide();
+            } catch(e) { console.warn('No se pudo cerrar el modal:', e); }
+          }
+
+          if (typeof actualizarCampanias === 'function') {
+            try { actualizarCampanias(); } catch(e) { console.warn('actualizarCampanias lanzó error:', e); }
+          }
+        } else {
+          if (window.Swal) Swal.fire({ icon: 'error', text: 'No se pudo registrar el producto. Intenta nuevamente.' });
+          else alert('No se pudo registrar el producto. Intenta nuevamente.');
+        }
+      })
+      .catch(err => {
+        console.error("Error al registrar producto", err);
+        if (window.Swal) Swal.fire({ icon: 'error', text: '❌ Error al registrar el producto. Consulta la consola para más detalles.' });
+        else alert('❌ Error al registrar el producto. Revisa la consola.');
+      })
+      .finally(() => {
+        hideSpinner();
+        disableBtn(btnRegistrar, false);
+      });
+    });
+  </script>
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Bootstrap (opcional, solo si usas el modal) -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/js/bootstrap.bundle.min.js"></script> -->
+</body>
+</html>

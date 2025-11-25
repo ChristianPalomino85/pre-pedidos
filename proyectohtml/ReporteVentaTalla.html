@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Resumen Pre-Pedido – Azaleia</title>
+
+  <!-- Bootstrap + Iconos + ExcelJS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+
+  <style>
+    :root {
+      --az:#e66b00;
+      --az-dark:#cc5200;
+      --az-soft:#fff7f2;
+    }
+
+    body {
+      font-family:'Segoe UI', sans-serif;
+      background:var(--az-soft);
+    }
+
+    h2 {
+      color:var(--az-dark);
+      margin-bottom:1rem;
+      font-weight:600;
+    }
+
+    .tabla-az thead th {
+      background:var(--az);
+      color:#fff;
+      padding:10px;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+
+    .btn-az {
+      background:var(--az);
+      color:#fff;
+      border:none;
+      padding:8px 16px;
+      border-radius:5px;
+    }
+
+    .btn-az:hover {
+      background:var(--az-dark);
+    }
+
+    .filter-bar input {
+      padding:6px;
+      border:1px solid #ccc;
+      border-radius:4px;
+    }
+
+    .status-message {
+      text-align:center;
+      padding:1rem;
+      font-style:italic;
+    }
+
+    .pagination-container {
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-top:15px;
+      font-size:0.9rem;
+    }
+
+    .pagination-container .page-buttons button {
+      min-width:32px;
+    }
+
+    #spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 2000;
+    }
+
+    #spinner-overlay .spinner-border {
+      width: 4rem;
+      height: 4rem;
+      color: var(--az);
+    }
+
+    #spinner-overlay .loading-text {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--az-dark);
+    }
+
+    input.form-control {
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    label.form-label {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .tabla-az th, .tabla-az td {
+      white-space: nowrap;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .tabla-az th.talla, .tabla-az td.talla {
+      width: 60px;
+      min-width: 60px;
+      max-width: 60px;
+    }
+
+    /* Responsive: móvil */
+    @media (max-width: 576px) {
+      h2 {
+        font-size: 1.3rem;
+      }
+
+      .btn-az {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+      }
+
+      label.form-label {
+        font-size: 0.9rem;
+      }
+
+      .tabla-az th, .tabla-az td {
+        font-size: 0.85rem;
+        padding: 6px;
+      }
+
+      .pagination-container {
+        flex-direction: column;
+        align-items:flex-start;
+        gap: 6px;
+      }
+
+      .pagination-container button {
+        font-size:0.8rem;
+      }
+    }
+
+    table tr.tr-totales td {
+      background-color: #ffe9d6 !important; /* naranja claro Azaleia */
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="container-fluid py-4">
+  <h2><i class="bi bi-clipboard-data me-2"></i>Resumen de Pre-Pedidos por Talla</h2>
+
+  <div class="row g-3 align-items-end mb-4">
+    <div class="col-12 col-sm-6 col-md-3">
+      <input type="text" id="fMarca" class="form-control" placeholder="Marca">
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+      <input type="text" id="fReferencia" class="form-control" placeholder="Referencia">
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+      <input type="text" id="fColor" class="form-control" placeholder="Color">
+    </div>
+    <div class="col-12 col-sm-6 col-md-3 d-flex gap-2">
+      <button id="btnBuscar" class="btn btn-az flex-fill"><i class="bi bi-search me-1"></i>Buscar</button>
+      <button id="btnExcel" class="btn btn-az flex-fill"><i class="bi bi-file-earmark-excel"></i> Excel</button>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table tabla-az table-sm mb-0">
+      <thead id="theadResumen"></thead>
+      <tbody id="tbodyResumen"></tbody>
+    </table>
+    <div id="statusMessage" class="status-message"></div>
+  </div>
+
+  <!-- NUEVA PAGINACIÓN -->
+  <div class="pagination-container">
+    <div id="rangeInfo">Mostrando 0–0 de 0</div>
+
+    <div class="d-flex align-items-center gap-2">
+      <span>Filas por página:</span>
+      <select id="selectTamanoPagina" class="form-select form-select-sm" style="width:auto;">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+      </select>
+    </div>
+
+    <div id="pageButtons" class="page-buttons d-flex align-items-center gap-1"></div>
+  </div>
+
+  <div id="spinner-overlay">
+    <div class="spinner-border" role="status"></div>
+    <div class="loading-text">Cargando...</div>
+  </div>
+
+  <script>
+    // Variables globales
+    const urlAPI = "https://appsapventasapi.azurewebsites.net/api/ProcesoPrePedido/GetReporteVentaPrePedidoAsync";
+    let tamanoPagina = 10; // AHORA es dinámico
+
+    let totalRegistros = 0;
+    let totalPaginas = 1;
+    let paginaActual = 1;
+    let columnasTallas = [];
+
+    const tbody = document.getElementById('tbodyResumen');
+    const thead = document.getElementById('theadResumen');
+    const statusMessage = document.getElementById('statusMessage');
+
+    // NUEVOS ELEMENTOS DE PAGINACIÓN
+    const rangeInfo = document.getElementById('rangeInfo');
+    const pageButtonsContainer = document.getElementById('pageButtons');
+    const selectTamanoPagina = document.getElementById('selectTamanoPagina');
+
+    // Spinner
+    function mostrarSpinner() {
+      document.getElementById('spinner-overlay').style.display = 'flex';
+    }
+    function ocultarSpinner() {
+      document.getElementById('spinner-overlay').style.display = 'none';
+    }
+
+    // Buscar
+    function buscar() {
+      paginaActual = 1;
+      columnasTallas = [];
+      fetchAndRender();
+    }
+    document.getElementById('btnBuscar').addEventListener('click', buscar);
+
+    // Enter en filtros
+    ['fMarca', 'fReferencia', 'fColor'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          buscar();
+        }
+      });
+    });
+
+    // Cambio de tamaño de página
+    selectTamanoPagina.addEventListener('change', () => {
+      tamanoPagina = Number(selectTamanoPagina.value) || 10;
+      paginaActual = 1;
+      fetchAndRender();
+    });
+
+    // Actualizar controles de paginación (texto + botones)
+    function updatePaginationControls() {
+      // Calcular rango mostrado
+      let inicio = totalRegistros === 0 ? 0 : (paginaActual - 1) * tamanoPagina + 1;
+      let fin = totalRegistros === 0 ? 0 : Math.min(paginaActual * tamanoPagina, totalRegistros);
+      rangeInfo.textContent = `Mostrando ${inicio}–${fin} de ${totalRegistros}`;
+
+      // Limpiar botones
+      pageButtonsContainer.innerHTML = '';
+
+      if (totalRegistros === 0) return;
+
+      const maxPagesToShow = 5;
+
+      const createButton = (label, page, { disabled = false, active = false } = {}) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.className = 'btn btn-sm btn-light border';
+        if (active) {
+          btn.classList.add('btn-primary');
+        }
+        btn.disabled = disabled || active;
+        btn.addEventListener('click', () => {
+          if (page === paginaActual || btn.disabled) return;
+          paginaActual = page;
+          fetchAndRender();
+        });
+        pageButtonsContainer.appendChild(btn);
+      };
+
+      const addEllipsis = () => {
+        const span = document.createElement('span');
+        span.textContent = '…';
+        span.className = 'px-1';
+        pageButtonsContainer.appendChild(span);
+      };
+
+      // Botones de primera y anterior
+      createButton('«', 1, { disabled: paginaActual === 1 });
+      createButton('‹', Math.max(1, paginaActual - 1), { disabled: paginaActual === 1 });
+
+      // Cálculo de rango de páginas a mostrar
+      let start = Math.max(1, paginaActual - 2);
+      let end = Math.min(totalPaginas, paginaActual + 2);
+
+      if (end - start + 1 < maxPagesToShow) {
+        if (start === 1) {
+          end = Math.min(totalPaginas, start + maxPagesToShow - 1);
+        } else if (end === totalPaginas) {
+          start = Math.max(1, end - maxPagesToShow + 1);
+        }
+      }
+
+      // Primera página + puntos si hace falta
+      if (start > 1) {
+        createButton('1', 1, { active: paginaActual === 1 });
+        if (start > 2) addEllipsis();
+      }
+
+      // Páginas centrales
+      for (let p = start; p <= end; p++) {
+        createButton(String(p), p, { active: p === paginaActual });
+      }
+
+      // Última página + puntos si hace falta
+      if (end < totalPaginas) {
+        if (end < totalPaginas - 1) addEllipsis();
+        createButton(String(totalPaginas), totalPaginas, { active: paginaActual === totalPaginas });
+      }
+
+      // Botones de siguiente y última
+      createButton('›', Math.min(totalPaginas, paginaActual + 1), { disabled: paginaActual === totalPaginas });
+      createButton('»', totalPaginas, { disabled: paginaActual === totalPaginas });
+    }
+
+    // Exportar a Excel
+    document.getElementById('btnExcel').addEventListener('click', exportarExcel);
+
+    // Obtener y renderizar datos    
+    async function fetchAndRender() {
+      mostrarSpinner();
+      statusMessage.textContent = "Cargando…";
+      tbody.innerHTML = '';
+
+      const body = {
+        marca: document.getElementById('fMarca').value.trim(),
+        referencia: document.getElementById('fReferencia').value.trim(),
+        color: document.getElementById('fColor').value.trim(),
+        pagina: paginaActual,
+        tamanoPagina: tamanoPagina
+      };
+
+      try {
+        const res = await fetch(urlAPI, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) throw new Error(res.statusText);
+
+        const { datos, totalRegistros: total } = await res.json();
+        totalRegistros = total || 0;
+        totalPaginas = totalRegistros === 0 ? 1 : Math.ceil(totalRegistros / tamanoPagina);
+
+        if (!datos || datos.length === 0) {
+          statusMessage.textContent = "No hay datos.";
+          updatePaginationControls();
+          return;
+        }
+
+        if (!columnasTallas.length) {
+          columnasTallas = Array.from(new Set(datos.flatMap(item => Object.keys(item.tallas)))).sort((a, b) => +a - +b);
+          thead.innerHTML = `<tr>
+            <th>Marca</th><th>Colección</th><th>Modelo</th><th>Color</th>
+            ${columnasTallas.map(t => `<th class="talla">T${t}</th>`).join('')}
+            <th>Total</th></tr>`;
+        }
+
+        // 1. Inicializar acumuladores de tallas
+        const acumulados = {};
+        columnasTallas.forEach(t => acumulados[t] = 0);
+        let totalGlobal = 0;
+
+        // 2. Renderizar filas y acumular tallas
+        datos.forEach(item => {
+          totalGlobal += Number(item.totalGeneral || 0);
+
+          columnasTallas.forEach(t => {
+            acumulados[t] += Number(item.tallas[t] || 0);
+          });
+
+          const filaHTML = `
+            <tr>
+              <td>${item.marca}</td>
+              <td>${item.codigo}</td>
+              <td>${item.modelo}</td>
+              <td>${item.color}</td>
+              ${columnasTallas.map(t => `<td class="talla">${item.tallas[t] || 0}</td>`).join('')}
+              <td class="text-center fw-bold">${item.totalGeneral}</td>
+            </tr>
+          `;
+          tbody.insertAdjacentHTML('beforeend', filaHTML);
+        });
+
+        // 3. Agregar fila de totales
+        const filaTotales = `
+          <tr class="tr-totales">
+            <td colspan="4" class="text-end">Totales:</td>
+            ${columnasTallas.map(t => `<td class="talla">${acumulados[t]}</td>`).join('')}
+            <td class="text-center">${totalGlobal}</td>
+          </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', filaTotales);
+
+        statusMessage.textContent = "";
+        updatePaginationControls();
+
+      } catch (err) {
+        console.error(err);
+        statusMessage.textContent = "Error al cargar datos.";
+        totalRegistros = 0;
+        totalPaginas = 1;
+        updatePaginationControls();
+      } finally {
+        ocultarSpinner();
+      }
+    }
+
+    async function exportarExcel() {
+      if (!thead.querySelector('tr') || !tbody.querySelector('tr')) {
+        statusMessage.textContent = "No hay datos para exportar.";
+        return;
+      }
+      mostrarSpinner();
+      statusMessage.textContent = "Generando Excel…";
+
+      try {
+        const headers = Array.from(thead.querySelectorAll('th')).map(th => th.textContent.trim());
+        const rows = Array.from(tbody.querySelectorAll('tr')).map(tr =>
+          Array.from(tr.children).map(td => td.textContent.trim())
+        );
+
+        const workbook = new ExcelJS.Workbook();
+        const fechaHoy = new Date();
+        const nombreHoja = `ReportePrePedidos (${fechaHoy.getDate().toString().padStart(2, '0')}-${(fechaHoy.getMonth() + 1).toString().padStart(2, '0')}-${fechaHoy.getFullYear()})`;
+
+        const sheet = workbook.addWorksheet(nombreHoja);
+
+        // Cabecera
+        const headerRow = sheet.addRow(headers);
+        headerRow.eachCell((cell) => {
+          cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE66B00' }
+          };
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          cell.border = {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        });
+
+        // Filas de datos
+        rows.forEach(dataRow => {
+          const row = sheet.addRow(dataRow);
+          row.eachCell(cell => {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+            cell.border = {
+              top: { style: 'thin' },
+              bottom: { style: 'thin' },
+              left: { style: 'thin' },
+              right: { style: 'thin' }
+            };
+          });
+        });
+
+        // Columna "Total"
+        const totalColIndex = headers.findIndex(h => h.toLowerCase().includes('total')) + 1;
+
+        // Total de pares
+        const totalPares = rows.reduce((sum, row) => {
+          const val = row[totalColIndex - 1]?.replace(/\D/g, '') || '0';
+          return sum + Number(val);
+        }, 0);
+
+        sheet.addRow([]);
+        const totalRow = sheet.addRow([]);
+
+        if (totalColIndex > 1) {
+          totalRow.getCell(totalColIndex - 1).value = "Total Pares:";
+          totalRow.getCell(totalColIndex - 1).font = { bold: true };
+          totalRow.getCell(totalColIndex - 1).alignment = { horizontal: 'right' };
+        }
+
+        totalRow.getCell(totalColIndex).value = totalPares;
+        totalRow.getCell(totalColIndex).font = { bold: true };
+        totalRow.getCell(totalColIndex).alignment = { horizontal: 'center' };
+
+        [totalColIndex - 1, totalColIndex].forEach(i => {
+          const cell = totalRow.getCell(i);
+          cell.border = {
+            top: { style: 'thin' },
+            bottom: { style: 'double' },
+            left: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        });
+
+        // Auto-ajustar ancho de columnas
+        sheet.columns.forEach((col, i) => {
+          const colVals = [headers[i], ...rows.map(r => r[i] ?? '')];
+          const maxLen = Math.max(...colVals.map(v => String(v).length));
+          col.width = Math.min(Math.max(10, maxLen + 2), 40);
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+
+        const fechaStr = `${String(fechaHoy.getDate()).padStart(2, '0')}${String(fechaHoy.getMonth() + 1).padStart(2, '0')}${fechaHoy.getFullYear()}`;
+        link.download = `${fechaStr}_Prepedido.xlsx`;
+        link.click();
+
+      } catch (error) {
+        console.error(error);
+        statusMessage.textContent = "Error al exportar.";
+      } finally {
+        ocultarSpinner();
+        statusMessage.textContent = "";
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', fetchAndRender);
+  </script>
+</body>
+</html>

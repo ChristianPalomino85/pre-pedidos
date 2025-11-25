@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <title>Libro de Reclamaciones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center; /* Centrar todo el contenido */
+            position: relative;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Reducido de 800px a 700px */
+            background-color: white;
+            padding: 15px; /* Menos padding para un diseño más compacto */
+            border: 2px solid #ced4da;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+            margin: auto; /* Centrar el cuadro */
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+
+
+        .title-container {
+            text-align: center;
+            width: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 22px; /* Reducido */
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 12 auto; /* Centrar */
+        }
+
+        .info-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .sub-title {
+            font-size: 18px; /* Reducido */
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .info-box {
+            background-color: #e3f2fd;
+            padding: 8px; /* Compacto */
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .section-title {
+            background-color: #ff5100;
+            color: white;
+            padding: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 5px;
+            font-size: 14px; /* Reducido */
+        }
+
+        .section {
+            border: 1px solid #ddd;
+            padding: 8px; /* Compacto */
+            margin-bottom: 8px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            text-align: left;
+        }
+
+            .section p {
+                margin: 3px 0;
+                font-size: 14px;
+                /* margin-bottom: 10px;
+                line-height: 1.5;*/
+            }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .folio {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            background-color: #f1f1f1;
+            padding: 3px 8px;
+            border-radius: 5px;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        .logo img {
+            width: 120px; /* Ajusta el ancho */
+            height: auto; /* Mantiene la proporción */
+            max-height: 50px; /* Evita que la imagen sea muy alta */
+        }
+        .footer > div:last-child {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="folio">N° @FOLIO</div>
+        <div class="header">
+            <div class="logo">
+
+                <img src="https://vteximagenes.blob.core.windows.net/publico/azalaeia.jpeg" />
+            </div>
+            <div class="title-container">
+                <div class="title">Libro de Reclamaciones</div>
+
+            </div>
+        </div>
+
+        <div class="info-container">
+            <div class="sub-title">Calzados Azaleia Perú S.A.</div>
+            <p>RUC: <strong>20374412524</strong></p>
+            <p>Dirección de Establecimiento: <strong>Av. Prolongación Arica Nro. 2248</strong></p>
+        </div>
+        <div class="info-box">
+            <strong>Fecha:</strong> @FDIA
+        </div>
+
+        <div class="section">
+            <div class="section-title" style="background-color: #ff5100;"> 1. IDENTIFICACIÓN DEL USUARIO</div>
+            <p><strong>Nombre o Razón Social : </strong> @USUARIO </p>
+            <p><strong>Domicilio : </strong> @DIRECCION </p>
+            <p><strong>Tipo Doc. : </strong> @TIPODOCUMENTO </p>     <p><strong>N° Documento :</strong> @NRODOCUMENTO </p>
+            <p><strong>E-Mail : </strong> @EMAIL </p>
+            <p><strong>Teléfono : </strong> @TELEFONO </p>
+
+        </div>
+
+        <div class="section">
+            <div class="section-title" style="background-color: #ff5100;"> 2. IDENTIFICACIÓN DE QUIEN PRESENTA EL RECLAMO (EN CASO EL USUARIO SEA MENOR DE EDAD)</div>
+            <p><strong>Nombres : </strong> @NOMBREHIJO </p>
+            <p><strong>Domicilio : </strong> @DIRH </p>
+            <p><strong>Tipo Doc. : </strong> @TIPDOCH </p>     <p><strong>N° Documento :</strong> @NRODOCH </p>
+            <p><strong>E-Mail : </strong> @CORREO </p>
+            <p><strong>Teléfono : </strong> @TLF </p>
+
+        </div>
+
+        <div class="section">
+            <div class="section-title" style="background-color: #ff5100;">3. DETALLE DEL RECLAMO  O QUEJA</div>
+            <p style="margin-bottom: 10px;"><strong>Fecha de Ocurrencia : </strong> @FECHA</p>
+            <p style="margin-bottom: 10px;"><strong>Monto : </strong> @MONTO</p>
+            <p style="margin-bottom: 10px;"><strong>Número de boleta y factura : </strong> @TICKET</p>
+            <p style="margin-bottom: 10px;"><strong>Tipo de reclamo : </strong> @TRECLAMO</p>
+            <p style="margin-bottom: 10px;"><strong>Identificación del bien contratado : </strong> @TCONTRATO</p>
+            <p style="margin-bottom: 10px;"><strong>Lugar de reclamo : </strong> @LRECLAMO</p>
+            <p style="margin-bottom: 10px;"><strong>Origen de la ocurrencia : </strong>@OCURRENCIA</p>
+            <p style="margin-bottom: 10px;"><strong>Detalle del reclamo : </strong>@DETALLERECLAMO</p>
+            <p style="margin-bottom: 10px;"><strong>PEDIDO (pedido concreto del consumidor respecto al hecho que motiva el reclamo o queja) : </strong>@DPEDIDO</p>
+
+        </div>
+
+        <div class="footer">
+            <p>Documento generado automáticamente</p>
+        </div>
+    </div>
+
+</body>
+</html>

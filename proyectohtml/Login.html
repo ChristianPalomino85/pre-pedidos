@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Iniciar Sesión – Azaleia</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #fff 0%, #fbeee6 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: "Segoe UI", sans-serif;
+      padding: 20px;
+      animation: fadeInBody 0.6s ease-in-out;
+    }
+
+    @keyframes fadeInBody {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 30px;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 2px solid rgba(212, 99, 33, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      animation: fadeInCard 0.8s ease;
+    }
+ .login-box img {
+      max-width: 160px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    @keyframes fadeInCard {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+   
+
+    h4 {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 1.3rem;
+      text-align: center;
+    }
+
+    .form-control {
+      height: 48px;
+      font-size: 1rem;
+    }
+
+    .btn-orange {
+      background-color: #d46321;
+      border: none;
+      color: #fff;
+      font-weight: 500;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-orange:hover {
+      background-color: #a9490f;
+    }
+
+    .text-end a {
+      font-size: 0.9rem;
+      color: #a9490f;
+    }
+
+    .text-end a:hover {
+      text-decoration: underline;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #d46321;
+    }
+
+    @media (max-width: 768px) {
+      .login-box {
+        padding: 32px 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .login-box {
+        padding: 24px 18px;
+      }
+
+      h4 {
+        font-size: 1.2rem;
+      }
+
+      .form-control,
+      .btn-orange {
+        font-size: 1rem;
+        height: 48px;
+      }
+
+      .text-end a {
+        font-size: 0.85rem;
+      }
+    }
+    #passwordInput {
+  padding-right: 2.5rem;
+}
+.btn-link:focus {
+  box-shadow: none;
+}
+
+.input-group-text {
+  background-color: transparent;
+  border-left: 0;
+}
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="text-center mb-4">
+      <img src="img/azalaeia.jpeg" alt="Logo">
+    </div>
+    <h4>Iniciar sesión</h4>
+
+    <form id="login-form" novalidate>
+      <div class="mb-3">
+        <label for="usuario" class="form-label">Usuario</label>
+        <input type="text" class="form-control" id="usuario" required autocomplete="username">
+      </div>
+    <div class="mb-3">
+          <label for="passwordInput" class="form-label">Contraseña</label>
+          <div class="input-group">
+            <input type="password" class="form-control" id="passwordInput" required autocomplete="current-password">
+            <span class="input-group-text bg-white border-start-0">
+              <button type="button" class="btn btn-link p-0 m-0 text-secondary" onclick="togglePassword()" tabindex="-1" style="font-size: 1.2rem;">
+                <i class="bi bi-eye" id="eyeIcon"></i>
+              </button>
+            </span>
+          </div>
+  </div>
+      <button type="submit" class="btn btn-orange w-100">Iniciar sesión</button>
+    </form>
+
+    <div class="text-end mt-2">
+      <a href="#" data-bs-toggle="modal" data-bs-target="#detalleModal">¿Olvidaste tu contraseña?</a>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Recuperar contraseña</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Ingresa tu correo para restablecer tu contraseña:</p>
+          <input type="email" class="form-control" id="correo-recuperacion" placeholder="ejemplo@dominio.com" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="enviarCorreoRecuperacion()">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+
+    function togglePassword() {
+    const passwordInput = document.getElementById("passwordInput");
+  const eyeIcon = document.getElementById("eyeIcon");
+
+  const isHidden = passwordInput.type === "password";
+  passwordInput.type = isHidden ? "text" : "password";
+  eyeIcon.className = isHidden ? "bi bi-eye-slash" : "bi bi-eye";
+}
+    async function iniciarSesion(evt) {
+      evt.preventDefault();
+      localStorage.clear();
+
+      const usuario = document.getElementById('usuario').value.trim();
+      const password = document.getElementById('passwordInput').value.trim();
+
+      if (!usuario || !password) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos requeridos',
+          text: 'Por favor, ingresa usuario y contraseña.'
+        });
+        return;
+      }
+
+      Swal.fire({ title: 'Verificando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      try {
+        const resp = await fetch('https://appsapventasapi.azurewebsites.net/api/usuario/GetIniciarSesion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, password })
+        });
+
+        Swal.close();
+
+        if (!resp.ok) {
+          let mensaje = 'Usuario o contraseña incorrectos.';
+          try {
+            const errorJson = await resp.clone().json();
+            if (errorJson?.mensaje) mensaje = errorJson.mensaje;
+          } catch {}
+
+          Swal.fire({ icon: 'error', title: 'Acceso denegado', text: mensaje });
+          return;
+        }
+
+        const data = await resp.json();
+        if (data.error === "Error en la credenciales") {
+          Swal.fire({ icon: 'error', title: 'Ingrese usuario/password correcto.', text: 'Error en las credenciales' });
+        } else {
+          localStorage.setItem('usuario', data.usuario);
+          localStorage.setItem('rol', data.rol);
+           localStorage.setItem('area', data.area);
+window.location.href = 'https://vteximagenes.blob.core.windows.net/proyectohtml/Dasboard.html';
+ //window.location.href = 'file:///C:/Users/amendoza/OneDrive%20-%20CALZADOS%20AZALEIA%20PERU%20S.A/Escritorio/Proyecto%20Html/Dasboard.html';
+          
+        }
+
+      } catch (error) {
+        Swal.close();
+        Swal.fire({ icon: 'error', title: 'Error de red', text: 'Ocurrió un problema de conexión. Intenta nuevamente.' });
+     //   console.error(error);
+      }
+    }
+
+    async function enviarCorreoRecuperacion() {
+      const correo = document.getElementById('correo-recuperacion').value.trim();
+      const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!regexCorreo.test(correo)) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Correo inválido',
+          text: 'Por favor, ingresa un correo válido.'
+        });
+        return;
+      }
+
+      // Aquí puedes agregar tu llamada real a la API
+    //  console.log('Enviando correo a:', correo);
+
+      const modal = bootstrap.Modal.getInstance(document.getElementById('detalleModal'));
+      modal.hide();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Correo enviado',
+        text: 'Hemos enviado un enlace para restablecer tu contraseña.',
+        confirmButtonText: 'Aceptar'
+      });
+    }
+
+    document.getElementById('login-form').addEventListener('submit', iniciarSesion);
+  </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Catálogo Azaleia</title>
+   <style>
+  @page { size: A4; margin: 0; }
+  html, body { margin:0; padding:0; height:100%; }
+  .sheet { position:relative; width:210mm; height:297mm; overflow:hidden; page-break-after:always; background:#fff; }
+
+  /* Fondo a sangre */
+  .hero.bg{
+    position:absolute; inset:0;
+    background-size: cover;          /* llena todo el A4 */
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .model{ position:absolute; top:30mm; left:18mm; font:800 24pt/1 Arial; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.35); }
+  .brand-vertical{ position:absolute; top:18mm; right:6mm; writing-mode:vertical-rl; transform:rotate(180deg); font:800 26pt Arial; letter-spacing:1pt; opacity:.18; }
+  .overlay-left{ position:absolute; top:60mm; left:18mm; width:110mm; background:rgba(255,255,255,.92); border:1px solid #e5e5e5; border-radius:6pt; box-shadow:0 8px 24px rgba(0,0,0,.18); padding:10mm 9mm; }
+  .section-title{ font:700 12pt Arial; margin:0 0 6mm; }
+  .specs{ width:100%; border-collapse:collapse; font:600 10pt Arial; }
+  .specs th{ text-align:left; font-weight:700; color:#5b5b5b; padding:4pt 8pt 4pt 0; white-space:nowrap; }
+  .specs td{ text-align:left; color:#222; padding:4pt 0; }
+  .pnum{ position:absolute; right:10mm; bottom:8mm; font:700 9pt Arial; color:#777; }
+</style>
+<body>
+  @FICHAS
+</body>
+</html>

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Dashboard Pre-Pedidos – Azaleia</title>
+
+  <!-- Bootstrap + Iconos + Chart.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script>Chart.register(ChartDataLabels);</script>
+
+  <style>
+    :root { --az:#e66b00; --az-dark:#cc5200; --az-soft:#fff7f2; }
+    body { background:var(--az-soft); font-family:'Segoe UI', system-ui, -apple-system, Arial, sans-serif; }
+    h2 { color:var(--az-dark); font-weight:600; }
+
+    /* KPIs */
+    .kpi-card{background:#fff;border:0;border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.06);padding:14px;display:flex;gap:12px;align-items:center;transition:transform .08s ease;cursor:pointer}
+    .kpi-card:hover{transform:translateY(-2px)}
+    .kpi-icon{width:42px;height:42px;border-radius:10px;background:var(--az);color:#fff;display:flex;align-items:center;justify-content:center}
+    .kpi-title{margin:0;color:#666;font-size:.85rem}
+    .kpi-value{margin:0;font-weight:800;font-size:1.15rem}
+
+    /* Tarjetas y tablas */
+    .card-az{border:0;border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.06)}
+    .card-az .card-header{background:linear-gradient(90deg,var(--az),var(--az-dark));color:#fff;border-top-left-radius:14px;border-top-right-radius:14px;padding:.5rem .75rem;font-weight:600}
+    .table-sm td,.table-sm th{vertical-align:middle}
+
+    /* Spinner */
+    #spinner{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(255,255,255,.8);z-index:2000}
+    #spinner .spinner-border{width:3rem;height:3rem;color:var(--az-dark)}
+
+    /* Lienzos */
+    #barPares{height:300px}
+    #donutCategorias,#donutEstados,#donutFabricantes,#donutCanales,#donutVendedores,#donutSubEstados{height:260px}
+    @media (max-width:576px){
+      .kpi-value{font-size:1rem}
+      #barPares{height:240px}
+      #donutCategorias,#donutEstados,#donutFabricantes,#donutCanales,#donutVendedores,#donutSubEstados{height:220px}
+    }
+
+    /* Botonera de dimensiones */
+    .dim-toolbar .btn{
+      --bs-btn-padding-y:.3rem; --bs-btn-padding-x:.6rem; --bs-btn-font-size:.85rem;
+      border-radius:999px; font-weight:600;
+    }
+    .dim-toolbar .btn.active{background:var(--az-dark); color:#fff; border-color:var(--az-dark)}
+
+    /* ===== Multiselect (Colección) ===== */
+    .ms { position: relative; min-width: 240px; }
+    .ms-control {
+      display:flex; align-items:center; gap:.5rem;
+      border:1px solid #ced4da; border-radius:.375rem;
+      background:#fff; padding:.375rem .5rem; cursor:pointer; min-height:36px;
+    }
+    .ms-control:hover { border-color:#adb5bd; }
+    .ms-placeholder { color:#6c757d; }
+    .ms-chips { display:flex; flex-wrap:wrap; gap:.25rem; }
+    .ms-chip { background:#fff3e6; color:#b24d00; border:1px solid #ffd9b3; border-radius:999px; padding:0 .5rem; font-size:.8rem; }
+    .ms-caret { margin-left:auto; color:#666; }
+
+    .ms-panel {
+      position:absolute; z-index:1050; top:100%; left:0; right:0;
+      background:#fff; border:1px solid #dee2e6; border-radius:.375rem;
+      margin-top:.25rem; box-shadow:0 8px 22px rgba(0,0,0,.08);
+    }
+    .ms-head { display:flex; align-items:center; gap:.5rem; padding:.5rem; border-bottom:1px solid #eee; }
+    .ms-head input { width:100%; }
+    .ms-list { max-height:260px; overflow:auto; padding:.25rem .5rem; }
+    .ms-row { display:flex; align-items:center; gap:.5rem; padding:.25rem .25rem; border-radius:.25rem; }
+    .ms-row:hover { background:#f8f9fa; }
+    .ms-footer { display:flex; justify-content:flex-end; gap:.5rem; padding:.5rem; border-top:1px solid #eee; }
+    .ms-btn { border:1px solid #ced4da; background:#fff; border-radius:.375rem; padding:.2rem .6rem; }
+    .ms-btn.primary { background:#e66b00; border-color:#e66b00; color:#fff; }
+    .ms-small { font-size:.85rem; color:#6c757d; margin-top:.25rem; }
+  </style>
+</head>
+<body class="container-fluid py-3">
+
+  <!-- Filtros -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+  <h2 class="m-0">
+    <i class="bi bi-speedometer2 me-2"></i>Tablero Principal
+  </h2>
+
+  <!-- Contenedor de filtros en una sola fila en pantallas >= lg -->
+  <div class="d-flex align-items-end gap-2 flex-wrap flex-lg-nowrap">
+    <div class="flex-shrink-0">
+      <label class="form-label mb-1 small">Desde</label>
+      <input type="date" id="fIni" class="form-control form-control-sm">
+    </div>
+
+    <div class="flex-shrink-0">
+      <label class="form-label mb-1 small">Hasta</label>
+      <input type="date" id="fFin" class="form-control form-control-sm">
+    </div>
+
+    <!-- Multiselect Colección -->
+    <div class="flex-shrink-0">
+      <label class="form-label mb-1 small d-flex align-items-center gap-2">
+        Colección <span class="text-muted small">(multi)</span>
+      </label>
+      <div id="ms-CodColeccion" class="ms"></div>
+      <div class="ms-small" id="colecSummary">Sin filtro</div>
+    </div>
+
+    <div class="flex-shrink-0">
+      <label class="form-label mb-1 small">Fabricante</label>
+      <input type="text" id="Fabricante" class="form-control form-control-sm">
+    </div>
+
+    <div class="flex-shrink-0">
+      <label class="form-label mb-1 small">Marca</label>
+      <input type="text" id="Marca" class="form-control form-control-sm">
+    </div>
+
+    <button id="btnBuscar" class="btn btn-sm flex-shrink-0"
+            style="background:var(--az);color:#fff">
+      <i class="bi bi-search me-1"></i>Buscar
+    </button>
+  </div>
+</div>
+
+  <!-- KPIs -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-card" data-dim="productos">
+        <div class="kpi-icon"><i class="bi bi-box-seam"></i></div>
+        <div><p class="kpi-title">Productos</p><p id="kpiProductos" class="kpi-value">0</p></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-card" data-dim="fabricantes">
+        <div class="kpi-icon"><i class="bi bi-cash-coin"></i></div>
+        <div><p class="kpi-title">Total Pares</p><p id="kpiPares" class="kpi-value">0</p></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2" hidden>
+      <div class="kpi-card" data-dim="procesos">
+        <div class="kpi-icon"><i class="bi bi-cart-check"></i></div>
+        <div><p class="kpi-title">Total Pedidos</p><p id="kpiPedidos" class="kpi-value">0</p></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-card" data-dim="estados">
+        <div class="kpi-icon"><i class="bi bi-check2-circle"></i></div>
+        <div><p class="kpi-title">Confirmados</p><p id="kpiConfirmados" class="kpi-value">0</p></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-card" data-dim="subEstados">
+        <div class="kpi-icon"><i class="bi bi-truck"></i></div>
+        <div><p class="kpi-title">En Tránsito</p><p id="kpiTransito" class="kpi-value">0</p></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-card" data-dim="estados">
+        <div class="kpi-icon"><i class="bi bi-box-arrow-in-down"></i></div>
+        <div><p class="kpi-title">Recepcionado</p><p id="kpiRecep" class="kpi-value">0</p></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="kpi-card" data-dim="estados">
+        <div class="kpi-icon"><i class="bi bi-lock-fill"></i></div>
+        <div><p class="kpi-title">Cerrado</p><p id="kpiCerrado" class="kpi-value">0</p></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2" hidden>
+      <div class="kpi-card" data-dim="categorias">
+        <div class="kpi-icon"><i class="bi bi-calendar-day"></i></div>
+        <div><p class="kpi-title">Pares del Día</p><p id="kpiDia" class="kpi-value">0</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botonera de dimensiones -->
+  <div class="card card-az mb-3">
+    <div class="card-header">Dimensiones</div>
+    <div class="card-body dim-toolbar d-flex flex-wrap gap-2">
+      <button class="btn btn-outline-dark" data-dim="fabricantes">Fabricantes</button>
+      <button class="btn btn-outline-dark" data-dim="categorias">Categorías</button>
+      <button class="btn btn-outline-dark" data-dim="estados">Estados</button>
+      <button class="btn btn-outline-dark" data-dim="canales">Canales</button>
+      <button class="btn btn-outline-dark" data-dim="vendedores">Vendedores</button>
+      <button class="btn btn-outline-dark" data-dim="productos">Productos</button>
+      <button class="btn btn-outline-dark" data-dim="procesos">Procesos</button>
+    </div>
+  </div>
+
+  <!-- Serie dinámica (barra) -->
+  <div class="card card-az mb-3">
+    <div class="card-header"><span id="tituloBarra">Ventas del periodo</span></div>
+    <div class="card-body"><canvas id="barPares"></canvas></div>
+  </div>
+
+  <!-- Donuts fila 1 -->
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-lg-4">
+      <div class="card card-az h-100">
+        <div class="card-header">Top por Categorías</div>
+        <div class="card-body"><canvas id="donutCategorias"></canvas></div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="card card-az h-100">
+        <div class="card-header">Estados de Pedido</div>
+        <div class="card-body"><canvas id="donutEstados"></canvas></div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="card card-az h-100">
+        <div class="card-header">Fabricantes</div>
+        <div class="card-body"><canvas id="donutFabricantes"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Donuts fila 2 -->
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-lg-4">
+      <div class="card card-az h-100">
+        <div class="card-header">Canales</div>
+        <div class="card-body"><canvas id="donutCanales"></canvas></div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="card card-az h-100">
+        <div class="card-header">Vendedores</div>
+        <div class="card-body"><canvas id="donutVendedores"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tablas -->
+  <div class="row g-3">
+    <div class="col-12 col-lg-7">
+      <div class="card card-az">
+        <div class="card-header">Productos más pedidos</div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr><th>Producto</th><th class="text-end">Cantidad</th><th>Marca</th><th>Color</th></tr>
+              </thead>
+              <tbody id="tbodyTopProductos"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <div class="card card-az">
+        <div class="card-header">Pedidos por Proceso</div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr><th>Proceso</th><th class="text-end">Pedidos</th><th class="text-end">Pares</th></tr>
+              </thead>
+              <tbody id="tbodyProcesos"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spinner -->
+  <div id="spinner"><div class="spinner-border" role="status"></div></div>
+
+  <script>
+    // =================== CONFIG ===================
+ const URL_API = "https://appsapventasapi.azurewebsites.net/api/ProcesoPrePedido/GetDashboardPedidoKPIAsync";
+   //const URL_API = "http://localhost:5232/api/ProcesoPrePedido/GetDashboardPedidoKPIAsync";
+
+    // =================== UTILS ===================
+    const $ = id => document.getElementById(id);
+    function showSpinner(){ $('spinner').style.display='flex'; }
+    function hideSpinner(){ $('spinner').style.display='none'; }
+    function stripDate(inputEl){ return (inputEl.value||'').replaceAll('-',''); } // puede quedar ""
+
+    function sum(values){ return (values||[]).reduce((a,b)=>a+(+b||0),0); }
+    function setBarTitle(text){ $('tituloBarra').textContent = text || 'Serie'; }
+    function tooltipWithPercent(ctx){
+      const ds = ctx.dataset, total = sum(ds.data);
+      const v = ctx.raw || 0, pct = total ? (v/total*100) : 0;
+      const lbl = ctx.label || ctx.chart.data.labels?.[ctx.dataIndex] || '';
+      return `${lbl}: ${v.toLocaleString()}  (${pct.toFixed(1)}%)`;
+    }
+
+    // =================== Multiselect (Colección) ===================
+    class MultiSelect {
+      constructor(root, { placeholder = 'Selecciona...', options = [], searchable = true } = {}) {
+        this.root = root;
+        this.placeholder = placeholder;
+        this.allOptions = options;
+        this.filtered = [...options];
+        this.tempSelected = new Set();
+        this.selected = new Set();
+        this.build(searchable);
+        this.renderControl();
+        this.renderList();
+        this.syncSummary();
+        this.bindGlobalClose();
+      }
+      build(searchable) {
+        this.root.innerHTML = `
+          <div class="ms-control">
+            <div class="ms-chips"></div>
+            <div class="ms-placeholder">${this.placeholder}</div>
+            <i class="bi bi-caret-down-fill ms-caret"></i>
+          </div>
+          <div class="ms-panel" hidden>
+            <div class="ms-head">
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="ms-all"></div>
+              <input type="text" class="form-control form-control-sm" id="ms-search" placeholder="Buscar...">
+            </div>
+            <div class="ms-list"></div>
+            <div class="ms-footer">
+              <button type="button" class="ms-btn" id="ms-cancel">Cancel</button>
+              <button type="button" class="ms-btn primary" id="ms-ok">OK</button>
+            </div>
+          </div>`;
+        this.elControl  = this.root.querySelector('.ms-control');
+        this.elChips    = this.root.querySelector('.ms-chips');
+        this.elPh       = this.root.querySelector('.ms-placeholder');
+        this.elPanel    = this.root.querySelector('.ms-panel');
+        this.elList     = this.root.querySelector('.ms-list');
+        this.elSearch   = this.root.querySelector('#ms-search');
+        this.elAll      = this.root.querySelector('#ms-all');
+        this.btnOK      = this.root.querySelector('#ms-ok');
+        this.btnCancel  = this.root.querySelector('#ms-cancel');
+
+        this.elControl.addEventListener('click', () => this.open());
+        this.btnCancel.addEventListener('click', () => this.cancel());
+        this.btnOK.addEventListener('click', () => this.apply());
+        this.elAll.addEventListener('change', () => this.toggleAll(this.elAll.checked));
+        if (!searchable) this.elSearch.parentElement.style.display = 'none';
+        this.elSearch.addEventListener('input', () => this.filter(this.elSearch.value));
+      }
+      open(){ this.tempSelected = new Set(this.selected); this.elPanel.hidden = false; this.elSearch.focus(); this.renderList(); this.updateAllCheckbox(); }
+      close(){ this.elPanel.hidden = true; }
+      cancel(){ this.close(); }
+      apply(){ this.selected = new Set(this.tempSelected); this.close(); this.renderControl(); this.syncSummary(); this.root.dispatchEvent(new CustomEvent('change',{detail:this.getValues()})); }
+      filter(q){
+        const s = (q||'').normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase();
+        this.filtered = this.allOptions.filter(o=>{
+          const t = (o.label||'').normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase();
+          return !s || t.includes(s);
+        });
+        this.renderList(); this.updateAllCheckbox();
+      }
+      toggleAll(on){ this.filtered.forEach(o => on ? this.tempSelected.add(o.value) : this.tempSelected.delete(o.value)); this.renderList(); }
+      updateAllCheckbox(){
+        const vals = this.filtered.map(o=>o.value);
+        const allOn = vals.length>0 && vals.every(v=>this.tempSelected.has(v));
+        this.elAll.indeterminate = !allOn && vals.some(v=>this.tempSelected.has(v));
+        this.elAll.checked = allOn;
+      }
+      renderList(){
+        this.elList.innerHTML = '';
+        this.filtered.forEach(o=>{
+          const row = document.createElement('div');
+          row.className = 'ms-row';
+          row.innerHTML = `<input type="checkbox" class="form-check-input" ${this.tempSelected.has(o.value)?'checked':''} data-v="${o.value}"><span>${o.label}</span>`;
+          row.querySelector('input').addEventListener('change',(e)=>{
+            const v = e.target.dataset.v;
+            if (e.target.checked) this.tempSelected.add(v); else this.tempSelected.delete(v);
+            this.updateAllCheckbox();
+          });
+          this.elList.appendChild(row);
+        });
+      }
+      renderControl(){
+        this.elChips.innerHTML = '';
+        const vals = [...this.selected];
+        if (!vals.length){ this.elPh.style.display=''; return; }
+        this.elPh.style.display='none';
+        const optByVal = new Map(this.allOptions.map(o=>[o.value,o.label]));
+        vals.slice(0,2).forEach(v=>{
+          const chip = document.createElement('span');
+          chip.className='ms-chip'; chip.textContent = optByVal.get(v) || v;
+          this.elChips.appendChild(chip);
+        });
+        if (vals.length>2){
+          const more = document.createElement('span');
+          more.className='ms-chip'; more.textContent = `+${vals.length-2}`;
+          this.elChips.appendChild(more);
+        }
+      }
+      bindGlobalClose(){ document.addEventListener('click',(e)=>{ if(!this.root.contains(e.target)) this.close(); }); }
+      getValues(){ return [...this.selected]; }
+      setValues(v=[]){ this.selected = new Set(v); this.renderControl(); this.syncSummary(); }
+      syncSummary(){
+        const t = document.getElementById('colecSummary'); if (!t) return;
+        const v = this.getValues(); t.textContent = v.length ? `Seleccionado: ${v.join(', ')}` : 'Sin filtro';
+      }
+    }
+
+    let msColeccion;
+    async function fetchOptionsColeccion(){
+      try{
+        const res = await fetch('https://appsapventasapi.azurewebsites.net/api/procesoPrePedido/GetColeccionAsync');
+        const data = await res.json();
+        const opts = data.map(o => ({ value: String(o.codColeccion), label: o.descripcionColeccion }));
+        msColeccion = new MultiSelect(document.getElementById('ms-CodColeccion'), 
+        { placeholder:'Colección…', options: opts });
+         msColeccion.setValues(['11']); 
+      }catch(err){
+        console.error('Error colecciones', err);
+        msColeccion = new MultiSelect(document.getElementById('ms-CodColeccion'), { options: [] });
+      }
+    }
+    function getCodColeccionForPost(){ return (msColeccion?.getValues() || []).join('-'); }
+
+    // =================== CHARTS ===================
+    let barChart, donutCatChart, donutEstChart, donutFabChart, donutCanChart, donutVendChart, donutSubEstChart;
+    const chartOpts = {
+      animation:false, responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ usePointStyle:true } }, tooltip:{ callbacks:{ label: tooltipWithPercent } } }
+    };
+
+    function renderKPIs(k){
+      $('kpiProductos').textContent   = (k.productos||0).toLocaleString();
+      $('kpiPares').textContent       = (k.totalPares||0).toLocaleString();
+      $('kpiPedidos').textContent     = (k.totalPedidos||0).toLocaleString?.() || '0';
+      $('kpiConfirmados').textContent = (k.confirmados||0).toLocaleString();
+      $('kpiTransito').textContent    = (k.enTransito||0).toLocaleString();
+      $('kpiRecep').textContent       = (k.recepcionado||0).toLocaleString();
+      $('kpiCerrado').textContent     = (k.cerrado||0).toLocaleString();
+      $('kpiDia').textContent         = (k.paresDelDia||0).toLocaleString?.() || '0';
+    }
+
+    function renderBar(serie){
+      if (!serie) return;
+      if (barChart) barChart.destroy();
+
+      const ctx = $('barPares').getContext('2d');
+      const values = serie.values || [];
+      const total  = values.reduce((a,b)=>a+(+b||0),0);
+      setBarTitle(serie.title || 'Serie');
+
+      barChart = new Chart(ctx,{
+        type:'bar',
+        data:{ labels: serie.labels || [], datasets:[{ label: serie.title || 'Serie', data: values }] },
+        options:{
+          ...chartOpts,
+          scales:{ y:{ beginAtZero:true } },
+          plugins:{
+            ...chartOpts.plugins,
+            datalabels:{
+              formatter: v => `${Number(v).toLocaleString()} (${total? (v/total*100).toFixed(1):'0.0'}%)`,
+              anchor:'end', align:'top', offset:2, color:'#222', font:{ weight:'600', size:11 }, clamp:true
+            }
+          }
+        }
+      });
+    }
+
+    function renderDonut(canvasId, donutData){
+      const el = $(canvasId); if(!el) return;
+
+      const prev = { donutCategorias:donutCatChart, donutEstados:donutEstChart,
+                     donutFabricantes:donutFabChart, donutCanales:donutCanChart,
+                     donutVendedores:donutVendChart, donutSubEstados:donutSubEstChart }[canvasId];
+      if (prev && prev.destroy) prev.destroy();
+
+      const labels = donutData.labels || [];
+      const values = donutData.values || [];
+      const total  = values.reduce((a,b)=>a+(+b||0),0);
+
+      const ch = new Chart(el,{
+        type:'doughnut',
+        data:{ labels, datasets:[{ data: values }] },
+        options:{
+          ...chartOpts,
+          plugins:{
+            ...chartOpts.plugins,
+            legend:{ position:'right' },
+            datalabels:{
+              formatter: v => total ? ((v/total)*100).toFixed(1)+'%' : '0%',
+              color:'#222', font:{ weight:'700' }, align:'center', anchor:'center', clamp:true
+            }
+          }
+        }
+      });
+
+      if (canvasId==='donutCategorias')   donutCatChart   = ch;
+      if (canvasId==='donutEstados')      donutEstChart   = ch;
+      if (canvasId==='donutFabricantes')  donutFabChart   = ch;
+      if (canvasId==='donutCanales')      donutCanChart   = ch;
+      if (canvasId==='donutVendedores')   donutVendChart  = ch;
+      if (canvasId==='donutSubEstados')   donutSubEstChart= ch;
+    }
+
+    function renderTopProductos(rows){
+      const tbody = $('tbodyTopProductos');
+      tbody.innerHTML = (rows||[]).map(r=>`
+        <tr>
+          <td>${r.label ?? ''}</td>
+          <td class="text-end">${(r.cantidad||0).toLocaleString()}</td>
+          <td>${r.marca ?? ''}</td>
+          <td>${r.color ?? ''}</td>
+        </tr>`).join('');
+    }
+
+    function renderProcesos(rows){
+      const tbody = $('tbodyProcesos');
+      tbody.innerHTML = (rows||[]).map(r=>`
+        <tr>
+          <td>${r.proceso ?? ''}</td>
+          <td class="text-end">${(r.pedidos||0).toLocaleString()}</td>
+          <td class="text-end">${(r.pares||0).toLocaleString()}</td>
+        </tr>`).join('');
+    }
+
+    // Helpers para convertir a serie de barra
+    function donutToSerie(donut, title){ return { title: title || donut.title, labels: donut.labels, values: donut.values }; }
+    function procesosToSerie(procesos, usar='pares'){
+      return { title:'Pares por proceso', labels:(procesos||[]).map(x=>x.proceso), values:(procesos||[]).map(x=> +x[usar] || 0) };
+    }
+    function plainToSerie(title, labels, values){ return { title, labels, values }; }
+
+    // =================== FETCH (POST) ===================
+    let lastData = null;
+
+    async function cargar(){
+      const fIniApi = stripDate($('fIni'));
+      const fFinApi = stripDate($('fFin'));
+      if (fIniApi && fFinApi && fIniApi > fFinApi) { alert('Rango de fechas inválido'); return; }
+
+      const body = {
+        fechaInicio: fIniApi || '',
+        fechaFin:    fFinApi || '',
+        codColeccion: getCodColeccionForPost(), // '10-11'
+        fabricante:   (Fabricante.value || "").trim(),
+        codMarca:     (Marca.value || "").trim()
+      };
+
+      showSpinner();
+      try{
+        const res = await fetch(URL_API, {
+          method:'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        lastData = data;
+
+        renderKPIs(data.kpis || {});
+        if (data.serieTiempo)        renderBar(data.serieTiempo);
+        if (data.donutCategoria)     renderDonut('donutCategorias', data.donutCategoria);
+        if (data.donutEstado)        renderDonut('donutEstados', data.donutEstado);
+        if (data.donutFabricante)    renderDonut('donutFabricantes', data.donutFabricante);
+        if (data.donutCanal)         renderDonut('donutCanales', data.donutCanal);
+        if (data.donutVendedor)      renderDonut('donutVendedores', data.donutVendedor);
+        if (data.donutSubEstado)     renderDonut('donutSubEstados', data.donutSubEstado);
+
+        renderTopProductos(data.topProductos || []);
+        renderProcesos(data.procesos || []);
+      }catch(err){
+        console.error(err);
+        alert('Error al cargar el dashboard.');
+      }finally{
+        hideSpinner();
+      }
+    }
+
+    // =================== INTERACCIÓN KPI / Botones -> Barra ===================
+    function onDimSelect(dim){
+      if (!lastData) return;
+      document.querySelectorAll('.dim-toolbar .btn').forEach(b=>b.classList.toggle('active', b.dataset.dim===dim));
+      switch(dim){
+        case 'productos':
+          if (lastData.serieProductos) renderBar(lastData.serieProductos);
+          else if (lastData.topProductos) {
+            const serie = plainToSerie('Pares por producto (Top)',
+              lastData.topProductos.map(x=>x.label),
+              lastData.topProductos.map(x=>x.cantidad));
+            renderBar(serie);
+          }
+          break;
+        case 'fabricantes':
+          if (lastData.serieTiempo) renderBar(lastData.serieTiempo);
+          else if (lastData.donutFabricante) renderBar(donutToSerie(lastData.donutFabricante, 'Pares por fabricante'));
+          break;
+        case 'procesos':   renderBar(procesosToSerie(lastData.procesos || [], 'pares')); break;
+        case 'estados':    if (lastData.donutEstado)    renderBar(donutToSerie(lastData.donutEstado, 'Pares por estado')); break;
+        case 'categorias': if (lastData.donutCategoria) renderBar(donutToSerie(lastData.donutCategoria, 'Pares por categoría')); break;
+        case 'canales':    if (lastData.donutCanal)     renderBar(donutToSerie(lastData.donutCanal, 'Pares por canal')); break;
+        case 'vendedores': if (lastData.donutVendedor)  renderBar(donutToSerie(lastData.donutVendedor, 'Pares por vendedor')); break;
+      }
+    }
+
+    // =================== INIT ===================
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      await fetchOptionsColeccion(); // inicializa multiselect
+      cargar();
+
+      $('btnBuscar').addEventListener('click', cargar);
+      ['fIni','fFin'].forEach(id=>{
+        $(id).addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); cargar(); }});
+      });
+
+      // Click en KPIs
+      document.querySelectorAll('.kpi-card[data-dim]').forEach(card=>{
+        card.addEventListener('click', ()=> onDimSelect(card.dataset.dim));
+      });
+      // Click en botones de dimensión
+      document.querySelectorAll('.dim-toolbar .btn[data-dim]').forEach(btn=>{
+        btn.addEventListener('click', ()=> onDimSelect(btn.dataset.dim));
+      });
+
+      // refrescar resumen si el usuario cambia algo en el multiselect
+      document.getElementById('ms-CodColeccion').addEventListener('change', ()=>{
+        document.getElementById('colecSummary').textContent =
+          (msColeccion.getValues().length ? `Seleccionado: ${msColeccion.getValues().join(', ')}` : 'Sin filtro');
+      });
+    });
+  </script>
+</body>
+</html>

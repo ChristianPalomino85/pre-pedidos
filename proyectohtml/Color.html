@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Color</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+/* ====== Estilos existentes (se conservan) ====== */
+.table-custom th,.table-custom td{white-space:nowrap;}
+h2,h4,h5{color:#d46321;}
+.btn-azaleia{background:#e26c20;color:#fff;border-radius:50px;padding:8px 20px;border:none;transition:.3s;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.btn-azaleia:hover{background:#c45d1c;color:#fff}
+.btn-azaleia-outline{background:#fff;color:#e26c20;border:2px solid #e26c20;border-radius:50px;padding:8px 20px;transition:.3s;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.btn-azaleia-outline:hover{background:#e26c20;color:#fff}
+.azaleia-header{background:#e26c20!important;color:#fff!important}
+.azaleia-header th{background:#e26c20!important;color:#fff!important}
+
+.table-custom{border-collapse:separate;border-spacing:0 8px}
+.table-custom th{background:#e26c20;color:#fff;text-transform:uppercase;font-size:13px;padding:12px;border:none}
+.table-custom td{background:#fff;border:none;padding:14px;vertical-align:middle;box-shadow:0 2px 6px rgba(0,0,0,.03);font-size:14px;color:#333}
+.table-custom tr:hover td{background:#f1ac7e;transition:.3s}
+.product-image{max-width:60px;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.1);border:2px solid #e26c20}
+.text-muted{color:#c45d1c;font-size:13px}
+
+.btn-azaleia{padding:10px 24px;font-weight:500;font-size:15px}
+.btn-azaleia:hover{background:#c45d1c;transform:translateY(-1px)}
+#spinner-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1100;display:none;background:rgba(0,0,0,.4)}
+.spinner-border.orange{color:#e26c20;width:4rem;height:4rem;position:absolute;top:50%;left:50%;margin-top:-2rem;margin-left:-2rem}
+.modal-content{border-radius:1rem}
+.modal-header{border-bottom:none}
+.modal-footer{border-top:none}
+.detalle-modal-custom{max-width:1140px}
+@media(min-width:1200px){.modal-dialog-wide{max-width:96%}}
+@media(min-width:992px) and (max-width:1199px){.modal-dialog-wide{max-width:90%}}
+@media(min-width:768px) and (max-width:991px){.modal-dialog-wide{max-width:95%;margin:1rem auto}}
+@media(max-width:767px){.modal-dialog-wide{width:100%;margin:0;border-radius:0}}
+
+.product-modal .modal-content{border-radius:16px;overflow:hidden}
+.product-modal__header{background:linear-gradient(135deg,#e26c20 0%,#d46321 100%);color:#fff;border:0;padding:.9rem 1rem}
+.product-modal__footer{border:0;padding:.75rem 1rem 1rem}
+.product-modal__grid{display:grid;gap:24px;grid-template-columns:.75fr 1.25fr}
+@media(max-width:992px){.product-modal__grid{grid-template-columns:1fr}}
+.product-modal__media{max-width:380px}
+.product-modal__media-box{background:#fff5ed;border:1px solid #ffe1cf;border-radius:12px;aspect-ratio:4/3;max-height:300px;margin:0 auto}
+.product-modal__img{width:100%;height:100%;object-fit:contain;padding:12px;max-height:300px}
+.product-badge{background:#ffe1cf;color:#b34710;font-weight:700;border-radius:10px}
+.chip-ref{background:#f6f6f6;border:1px dashed #ddd;color:#333;border-radius:20px;padding:4px 10px;font-size:.9rem}
+.specs-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px 32px}
+@media(max-width:576px){.specs-grid-2{grid-template-columns:1fr}}
+.spec-list{display:grid;grid-template-columns:140px 1fr;gap:8px 12px;margin:0}
+@media(max-width:576px){.spec-list{grid-template-columns:120px 1fr}}
+.spec-list dt{margin:0;color:#666;font-weight:700}
+.spec-list dd{margin:0;color:#111;font-weight:500;padding-bottom:8px;border-bottom:1px dotted #eee}
+.spec-list dd:last-child{border-bottom:0}
+.spec-color{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.spec-color .swatch{width:18px;height:18px;border-radius:50%;border:1px solid #ddd;display:inline-block}
+.product-modal__header .modal-title{color:#fff!important}
+
+/* Modal campaña */
+body.modal-open{overflow:hidden !important;}
+#tabla-campania-body tr{cursor:pointer;transition:background-color .2s}
+#tabla-campania-body tr:hover{background:#ffe5d0!important}
+.modal-custom { max-width: 600px; width: 90%; max-height: 60vh; }
+#detalleModalCampania .modal-dialog { margin: auto; }
+#detalleModalCampania .modal-content { max-height: 60vh; border-radius: 16px; }
+
+/* Paginación Azaleia */
+.pager-wrap{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:12px}
+.pager-info{color:#6b7280;font-size:.9rem}
+.pager-actions{display:flex;align-items:center;gap:.5rem}
+.pager-size{display:flex;align-items:center;gap:.5rem;color:#6b7280}
+.pager-size select{border-radius:999px;padding:.25rem .75rem}
+.pagination-azaleia{margin:0}
+.pagination-azaleia .page-link{color:#e26c20;border:none;border-radius:8px;margin:0 2px}
+.pagination-azaleia .page-item.active .page-link{background:#e26c20;color:#fff}
+.pagination-azaleia .page-link:hover{background:#ffe1cf;color:#b34710}
+.pagination-azaleia .page-item.disabled .page-link{opacity:.5}
+
+/* Más espacio y ancho mínimo para el select de paginación */
+.pager-size select#page-size{
+  min-width: 128px;                         /* dale más ancho */
+  padding: .375rem 2.25rem .375rem 1rem;    /* más aire interno */
+  border-radius: 999px;                     /* mantiene el pill style */
+}
+
+/* Reposiciona el ícono del caret del <select> de Bootstrap */
+.pager-size .form-select{
+  background-position: right .8rem center;  /* mueve el caret a la derecha */
+  background-size: 16px 12px;
+}
+
+/* (Opcional) aún más ancho en desktop grande */
+@media (min-width: 992px){
+  .pager-size select#page-size{ min-width: 150px; }
+}
+
+
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid px-3 px-md-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4 mt-3">
+      <h2 class="fw-bold mb-0" style="color:#e26c20;">Color</h2>
+
+      <div class="btn-group" role="group" aria-label="Acciones de producto">
+        <button type="button" class="btn btn-azaleia w-100 w-md-auto" onclick="agregarColor()">
+          <i class="bi bi-plus-circle me-2"></i>Agregar</button>
+      </div>
+    </div>
+
+    <div class="row g-2 align-items-center mb-3">
+      <div class="col-12 col-md-6">
+        <input type="text" id="buscador-catalogo" class="form-control" placeholder="Buscar por cualquier campo…">
+      </div>
+      <div class="col-12 col-md-6 text-md-end">
+        <!-- espacio para acciones si las necesitas -->
+      </div>
+    </div>
+
+    <div class="table-responsive px-2 px-md-0">
+      <table class="table table-custom w-100">
+        <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Nombre/Inglés</th>
+          <th>Nombre/Brasil</th>
+          <th>Código/Brasil</th>
+          <th>Usuario</th>
+        </tr>
+        </thead>
+        <tbody id="data-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Controles de paginación -->
+    <div class="pager-wrap">
+      <div class="pager-info" id="pager-info">Mostrando 0–0 de 0</div>
+      <div class="pager-actions"><span>Filas por página:</span>
+        <div class="pager-size">
+          
+          <select id="page-size" class="form-select form-select-sm w-auto">
+            <option value="10" selected>10</option>
+            <option value="25" >25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        <nav>
+          <ul class="pagination pagination-sm pagination-azaleia mb-0" id="pager"></ul>
+        </nav>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-azaleia mt-4" onclick="window.location.href='Gestionar.html'">
+      <i class="bi bi-arrow-left me-2"></i> Regresar
+    </button>
+  </div>
+
+  <!-- Modal Formulario Color (no se modifica, se conserva por si lo usas en otra vista) -->
+  <div class="modal fade" id="modalFormularioCatalogo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-wide modal-dialog-centered-custom">
+      <div class="modal-content">
+        <div class="modal-header sticky-top" style="background-color:#e26c20;color:#fff;border-top-left-radius:1rem;border-top-right-radius:1rem;">
+          <h5 class="modal-title fw-bold text-white"><i class="bi bi-box me-2"></i>Registrar Color</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body" id="modal-body-catalogo"></div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-azaleia" onclick="generarPrePedido()"><i class="bi bi-save"></i> Registrar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spinner -->
+  <div id="spinner-overlay">
+    <div class="spinner-border orange" role="status"><span class="visually-hidden">Cargando...</span></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+/* ====================== JS ====================== */
+
+let codvendedor = "";
+window.addEventListener('DOMContentLoaded', () => {
+  const usuario = localStorage.getItem('usuario');
+  if (!usuario) { alert('⚠️ Sesión no válida. Por favor, inicia sesión.'); window.location.href='login.html'; return; }
+  codvendedor = usuario;
+  const span = document.getElementById('nombre-usuario'); if (span) span.textContent = codvendedor;
+});
+
+// Spinner
+function mostrarSpinner(){ document.getElementById('spinner-overlay').style.display='block'; }
+function ocultarSpinner(){ document.getElementById('spinner-overlay').style.display='none'; }
+
+// Navegación
+function agregarColor(){ window.location.href = 'GestionarColor.html'; }
+
+// ======= Estado para paginación/tabla =======
+const tbody = document.getElementById('data-body');
+const pager = document.getElementById('pager');
+const pagerInfo = document.getElementById('pager-info');
+const pageSizeSelect = document.getElementById('page-size');
+const buscadorCatalogo = document.getElementById('buscador-catalogo');
+
+// ENDPOINT (ajusta prod/local)
+//const url = 'http://localhost:5232/api/ProcesoPrePedido/ListaColorAsync';
+ const url = 'https://appsapventasapi.azurewebsites.net/api/ProcesoPrePedido/ListaColorAsync';
+
+let allRows = [];      // dataset completo
+let filtered = [];     // dataset filtrado (búsqueda)
+let currentPage = 1;   // página actual (1-indexed)
+let pageSize = parseInt(pageSizeSelect.value, 10) || 25;
+
+// Carga inicial
+(async function cargar(){
+  mostrarSpinner();
+  try {
+    const data = await fetch(url).then(r => r.json());
+    allRows = Array.isArray(data) ? data : [];
+    filtered = allRows.slice();
+    currentPage = 1;
+    render();
+  } catch (error) {
+   // console.error(error);
+    tbody.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Error al cargar los datos</td></tr>';
+    pager.innerHTML = '';
+    pagerInfo.textContent = 'Mostrando 0–0 de 0';
+  } finally {
+    ocultarSpinner();
+  }
+})();
+
+// Render general
+function render(){
+  renderTable();
+  renderPager();
+  renderInfo();
+}
+
+// Render de tabla con slice por página
+function renderTable(){
+  tbody.innerHTML = '';
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  if (total === 0){
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No hay resultados</td></tr>';
+    return;
+  }
+
+  const start = (currentPage - 1) * pageSize;
+  const end = Math.min(start + pageSize, total);
+  const pageRows = filtered.slice(start, end);
+
+  // Construimos HTML en bloque (performance)
+  let html = '';
+  for (const u of pageRows){
+    html += `
+      <tr style="cursor:pointer;">
+        <td>${esc(u.codigoColor)}</td>
+        <td>${esc(u.descripcionColor)}</td>
+        <td>${esc(u.descripcionColorComercial)}</td>
+        <td>${esc(u.descripcionColorBrasil)}</td>
+        <td>${esc(u.codColorBrasil)}</td>
+        <td>${esc(u.usuarioCreacion)}</td>
+      </tr>`;
+  }
+  tbody.innerHTML = html;
+}
+
+// Render de información "Mostrando X–Y de N"
+function renderInfo(){
+  const total = filtered.length;
+  if (total === 0){
+    pagerInfo.textContent = 'Mostrando 0–0 de 0';
+    return;
+  }
+  const start = (currentPage - 1) * pageSize + 1;
+  const end = Math.min(currentPage * pageSize, total);
+  pagerInfo.textContent = `Mostrando ${start}–${end} de ${total}`;
+}
+
+// Render de paginación con elipsis
+function renderPager(){
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  const items = [];
+  // Prev
+  items.push(pageItem('«', currentPage > 1, () => goPage(currentPage - 1), 'Anterior'));
+  // Números con elipsis
+  const nums = pageList(currentPage, totalPages, 7);
+  for (const n of nums){
+    if (n === '...'){
+      items.push(ellipsisItem());
+    } else {
+      items.push(pageItem(String(n), true, () => goPage(n), null, n === currentPage));
+    }
+  }
+  // Next
+  items.push(pageItem('»', currentPage < totalPages, () => goPage(currentPage + 1), 'Siguiente'));
+
+  pager.innerHTML = '';
+  for (const li of items) pager.appendChild(li);
+}
+
+// Helpers para paginación
+function pageItem(text, enabled, onClick, ariaLabel, active=false){
+  const li = document.createElement('li');
+  li.className = 'page-item' + (active ? ' active' : '') + (enabled ? '' : ' disabled');
+  const a = document.createElement('a');
+  a.className = 'page-link';
+  a.href = '#';
+  a.textContent = text;
+  if (ariaLabel) a.setAttribute('aria-label', ariaLabel);
+  if (enabled) a.addEventListener('click', (e) => { e.preventDefault(); onClick(); });
+  li.appendChild(a);
+  return li;
+}
+function ellipsisItem(){
+  const li = document.createElement('li');
+  li.className = 'page-item disabled';
+  const span = document.createElement('span');
+  span.className = 'page-link';
+  span.textContent = '…';
+  li.appendChild(span);
+  return li;
+}
+function pageList(page, totalPages, maxLength){
+  // Devuelve array de números y '...'
+  if (maxLength < 5) maxLength = 5;
+  const side = Math.max(1, Math.floor((maxLength - 3) / 2));
+  const left = Math.max(2, page - side);
+  const right = Math.min(totalPages - 1, page + side);
+
+  const result = [1];
+  if (left > 2) result.push('...');
+  for (let i = left; i <= right; i++) result.push(i);
+  if (right < totalPages - 1) result.push('...');
+  if (totalPages > 1) result.push(totalPages);
+  return result;
+}
+function goPage(n){
+  currentPage = n;
+  render();
+}
+
+// Helper: quita acentos y fuerza string en minúsculas
+function norm(v) {
+  return (v ?? '')
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+// Si no tienes debounce declarado, pon este (hoistea por ser function)
+function debounce(fn, delay = 300) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
+
+// Búsqueda en tiempo real (con debounce)
+if (buscadorCatalogo) {
+  buscadorCatalogo.addEventListener(
+    'input',
+    debounce((e) => {
+      const q = norm(e.target.value.trim());
+
+      if (!q) {
+        filtered = allRows.slice();
+      } else {
+        filtered = allRows.filter((u) => {
+          // Mapea todos los campos que quieras buscar
+          const campos = [
+            norm(u.codigoColor),
+            norm(u.descripcionColor),
+            norm(u.descripcionColorComercial),
+            norm(u.descripcionColorBrasil),
+            norm(u.codColorBrasil),
+            norm(u.usuarioCreacion),
+          ];
+          // true si alguno contiene el query
+          return campos.some((txt) => txt.includes(q));
+        });
+      }
+
+      currentPage = 1;
+      render();
+    }, 250)
+  );
+}
+// Cambio de tamaño de página
+pageSizeSelect.addEventListener('change', () => {
+  pageSize = parseInt(pageSizeSelect.value, 10) || 25;
+  currentPage = 1;
+  render();
+});
+
+// Utils
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#039;'}[m]));
+}
+function debounce(fn, delay = 300){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); }; }
+
+  </script>
+</body>
+</html>

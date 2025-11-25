@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tabla con datos de API</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Bootstrap bundle primero -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+  th, td {
+    white-space: nowrap; /* Evita que el contenido se rompa en varias líneas */
+  }
+     h2, h4,h5 {
+      color: #d46321;
+    }
+ .prepedido-ficha {
+  border: 1px solid #ccc;
+  padding: 20px;
+  font-size: 15px;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  background: #fff;
+}
+
+.prepedido-ficha .header-row,
+.prepedido-ficha .footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.prepedido-ficha .section {
+  border: 1px solid #bbb;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  background-color: #fdf8f4;
+}
+
+.prepedido-ficha .section-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #d46321;
+  font-size: 16px;
+}
+
+.prepedido-ficha .table-responsive {
+  overflow-x: auto;
+}
+
+.prepedido-ficha table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 10px;
+  background: white;
+}
+
+.prepedido-ficha th,
+.prepedido-ficha td {
+  padding: 6px 10px;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
+.prepedido-ficha th {
+  background-color: #f1f1f1;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .prepedido-ficha .header-row,
+  .prepedido-ficha .footer-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .prepedido-ficha table {
+    font-size: 13px;
+  }
+
+}
+.btn-imprimir{
+  background-color: #d46321;
+  color: #fff;
+  border: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-imprimir:hover {
+  background-color: #a9490f; /* tono más oscuro en hover */
+  color: #fff;
+}
+
+ .btn-detalle {
+    background-color: #d46321;
+    color: white; /* Esto aplica también al emoji */
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+
+  .btn-detalle:hover {
+    background-color: #a9490f;
+  }
+  #spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5); /* Fondo negro semitransparente */
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .spinner-border.orange {
+    color: #d46321; 
+    width: 4rem;
+    height: 4rem;
+  }
+
+  /* Encabezado color Azaleia */
+.azaleia-header {
+  background-color: #e26c20 !important; /* Color principal Azaleia */
+  color: white !important;
+}
+
+.azaleia-header th {
+  background-color: #e26c20 !important;
+  color: white !important;
+}
+
+/* Aumenta el ancho del modal en tablets (768px a 1024px aprox.) */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  .modal-dialog.ancho-responsive {
+    max-width: 95% !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Mejora también para pantallas grandes */
+@media (min-width: 1200px) {
+  .modal-dialog.ancho-responsive {
+    max-width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+@media (orientation: landscape) and (max-width: 1366px) {
+  .modal-dialog.ancho-responsive {
+    max-width: 95% !important;
+  }
+}
+ .tarjeta-azaleia {
+  background-color: #fffaf4;
+  border: 1px solid #e66b00;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+  height: 100%;
+}
+
+.tarjeta-azaleia:hover {
+  transform: scale(1.01);
+}
+
+.tarjeta-titulo {
+  background-color: #e66b00;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+
+.tarjeta-contenido p {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.section-title {
+  font-weight: bold;
+  background-color: #e66b00;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin: 20px 0 10px;
+  font-size: 1rem;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.footer-row {
+  background-color: #fff8ed;
+  border-top: 2px solid #e66b00;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 0 0 12px 12px;
+  margin-top: 30px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+/* Botones flotantes*/
+.botones-flotantes {
+   display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+/* Botón flotante con icono */
+.boton-flotante-icono {
+   width: 60px;
+  height: 60px;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  border: none;
+  background-color: #e66b00;
+  color: white;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+/* Efecto hover */
+.boton-flotante-icono:hover {
+  background-color: #cc5200;
+  transform: translateY(-2px);
+}
+/* Checkbox moderno estilo Azaleia */
+.table .form-check-input {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e66b00;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: none;
+  margin: auto;
+}
+
+.table .form-check-input:checked {
+  background-color: #e66b00;
+  border-color: #e66b00;
+}
+
+.table .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem rgba(230, 102, 0, 0.25);
+}
+/* === Checkbox moderno para tabla Azaleia === */
+
+.table td:first-child,
+.table th:first-child {
+  width: 36px;
+  text-align: center;
+  padding: 0 !important;
+}
+
+/* Estilo base sin márgenes extras */
+.form-check {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Checkbox estilizado */
+.form-check-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #e66b00;
+  border-radius: 4px;
+  background-color: #fff;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  cursor: pointer;
+}
+
+.form-check-input:checked {
+  background-color: #e66b00;
+  border-color: #e66b00;
+}
+
+.form-check-input:checked::after {
+  content: '\f00c'; /* fa-check */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 12px;
+  color: #fff;
+  position: absolute;
+  top: 1px;
+  left: 2px;
+}
+
+.form-check-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.15rem rgba(230, 102, 0, 0.25);
+}
+
+/* ✔️ Opción: resaltar fila al marcar */
+.fila-seleccionada {
+  background-color: #fff5e8 !important;
+}
+
+
+.tarjeta-titulo {
+  color: #d46321;
+  font-weight: bold;
+}
+
+.text-azaleia {
+  color: #d46321;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table thead th {
+  white-space: nowrap;
+}
+
+.footer-row {
+  font-size: 0.9rem;
+  color: #333;
+}
+.table th,
+.table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.table td img {
+  max-height: 50px;
+  object-fit: contain;
+}
+.table tbody td {
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.modal-body {
+   padding-right: 12px;
+  overflow: hidden;
+}
+.btn-azaleia {
+      background-color: #e26c20;
+      color: white;
+      border-radius: 50px;
+      padding: 8px 20px;
+      border: none;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .btn-azaleia:hover {
+      background-color: #c45d1c;
+      color: white;
+    }
+    .btn-azaleia-outline {
+      background-color: white;
+      color: #e26c20;
+      border: 2px solid #e26c20;
+      border-radius: 50px;
+      padding: 8px 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    .btn-azaleia-outline:hover {
+      background-color: #e26c20;
+      color: white;
+    }
+.fab-label {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  line-height: 1.2;
+}
+.fab-btn i {
+  transition: transform 0.3s ease, color 0.2s ease;
+  display: inline-block;
+}
+
+/* Al pasar el mouse por el botón: rotar y escalar */
+.fab-btn:hover i {
+  transform: rotate(10deg) scale(1.15);
+}
+
+/* Al hacer clic: leve presión visual */
+.fab-btn:active i {
+  transform: scale(0.95);
+}
+</style>
+</head>
+<body class="bg-light p-4">
+  <div class="container-fluid px-3 px-md-4">
+   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h2 class="mb-0">Lista de Pre-Pedido</h2>
+  
+  <div class="botones-flotantes d-flex gap-3">
+    <div class="fab-btn-wrap text-center">
+      <button class="boton-flotante-icono" onclick="agregarPrepedido()" title="Agregar PrePedido">
+        <i class="bi bi-plus-lg"></i>
+      </button>
+      <div class="fab-label">Agregar</div>
+    </div>
+    <div class="fab-btn-wrap text-center">
+      <button class="boton-flotante-icono" onclick="editarPrepedido()" title="Actualizar lista">
+        <i class="bi bi-arrow-clockwise fs-4"></i>
+      </button>
+      <div class="fab-label">Actualizar</div>
+    </div>
+  </div>
+</div>
+<!-------------------------------------------------------->
+
+   <div class="mb-3">
+    <input type="text" id="buscador" class="form-control" placeholder="Buscar pre-pedido por número pedido, cliente, modelo...">
+   </div>
+    <div class="table-responsive" style="overflow-x: auto;">
+      <table class="table table-bordered table-hover align-middle w-100">
+        <thead class="azaleia-header text-white">
+          <tr>
+            <th class="text-center">
+            <div class="form-check m-0">
+              <input class="form-check-input" type="checkbox" id="checkAll">
+            </div>
+          </th>
+            <th>Fecha Registro</th>
+            <th>NroPrePedido</th>
+            <th>Cliente</th>
+            <th>NroDocumento</th>
+            <th>Vendedor</th>
+            <th>Cliente Responsable</th>
+            <th>Fecha Confirmacion</th>
+            <th>Cod. Fabricante</th>
+            <th>Fabricante</th>
+            <th>Canal</th>
+            <th>Detalle</th>
+            </tr>
+        </thead>
+        <tbody id="data-body"></tbody>
+      </table>
+    </div>
+
+  </div>
+     
+  <!-- Modal -->
+
+
+  <div class="modal fade" id="detalleModal" tabindex="-1" aria-labelledby="detalleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-xl modal-dialog-scrollable ancho-responsive">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="detalleModalLabel">Detalle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body p-0" >
+              <div id="modal-body" style="max-height: 70vh; overflow-y: auto; padding: 1rem;">
+                 <!-- se llena dinámicamente -->
+              </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!--Generacion de Pdf -->
+<div id="printArea" style="display:none; font-family: Arial, sans-serif; padding: 24px;">
+  <h2 style="text-align:center; margin-bottom: 24px;">Proforma Pre-Pedido</h2>
+
+  <div style="border: 1px solid #ccc; padding: 16px; font-size: 14px;">
+    <!-- Encabezado -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+      <div><strong>Fecha Registro:</strong> <span id="pdfFechaRegistro">-</span></div>
+      <div><strong>Vendedor:</strong> <span id="pdfVendedor"></span></div>
+    </div>
+    <div style="margin-bottom: 16px;">
+      <strong>Nro Pedido:</strong> <span id="pdfNroPedido"></span>
+    </div>
+
+    <!-- Cliente -->
+    <div style="background-color: #fef5ef; border: 1px solid #e0b8a5; padding: 12px; margin-bottom: 16px;">
+      <div style="margin-bottom: 4px; color: #cc5200;"><strong>Cliente</strong></div>
+      <div style="display: flex; justify-content: space-between;">
+        <div><strong>Nombres:</strong> <span id="pdfNombreCliente"></span></div>
+        <div><strong>Nro Documento:</strong> <span id="pdfDocumento"></span></div>
+      </div>
+    </div>
+    <div style="background-color: #fef5ef; border: 1px solid #e0b8a5; padding: 12px; margin-bottom: 16px;">
+      <div style="margin-bottom: 4px; color: #cc5200;"><strong>Canal</strong></div>
+      <div style="display: flex; justify-content: space-between;">
+        <div><strong>Canal:</strong> <span id="pdfCanal"></span></div>
+
+      </div>
+    </div>
+
+    <!-- Artículos -->
+    <div style="background-color: #fef5ef; border: 1px solid #e0b8a5; padding: 12px; margin-bottom: 16px;">
+      <div style="margin-bottom: 4px; color: #cc5200;"><strong>Artículos</strong></div>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="background-color: #f8f8f8;">
+              <th style="border: 1px solid #ddd; padding: 6px;">Imagen</th>
+              <th style="border: 1px solid #ddd; padding: 6px;">Código</th>
+              <th style="border: 1px solid #ddd; padding: 6px;">Color</th>
+              <th style="border: 1px solid #ddd; padding: 6px;">Modelo</th>
+              <th style="border: 1px solid #ddd; padding: 6px;">Curva</th>
+              <th style="border: 1px solid #ddd; padding: 6px;">Precio S.</th>
+              <th style="border: 1px solid #ddd; padding: 6px;">Precio V.</th>
+            </tr>
+          </thead>
+          <tbody id="pdfDetalleArticulos"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+       
+      <div>
+         <p>______________________________</p>
+        <strong>Responsable:</strong> <span id="pdfResponsable"></span></div>
+      <div><strong>Fecha Confirmación:</strong> <span id="pdfFechaConfirmacion"></span></div>
+    </div>
+  </div>
+</div>
+ <!-------------------------------------------------------->
+ <!----------------------SPINNER---------------------------------->
+ <!-- Spinner único para todo -->
+  <div id="spinner-overlay">
+    <div class="d-flex flex-column align-items-center justify-content-center">
+      <div class="spinner-border orange" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <div class="text-white mt-3 fs-5">Cargando...</div>
+    </div>
+  </div>
+  <!-------------------------------------------------------->
+
+ <!-------------------------------------------------------->
+
+
+
+  <!-- Tu script después de que Bootstrap ya existe -->
+  <script>
+    let codvendedor = "";
+
+    window.addEventListener('DOMContentLoaded', () => {
+  const usuario = localStorage.getItem('usuario');
+
+
+  if (!usuario) {
+    alert('⚠️ Sesión no válida. Por favor, inicia sesión.');
+    window.location.href = 'login.html';
+    return;
+  } 
+  codvendedor = usuario; 
+
+  cargarPrePedidos(codvendedor) ;
+  });
+ 
+
+  // Función para mostrar la lista de pre-pedidos por vendedor
+  // Esta función se llama al cargar la página
+  async function cargarPrePedidos(codvendedor) 
+  {
+  const spinner = document.getElementById('spinner-overlay');
+  const tbody = document.getElementById('data-body');
+
+  spinner.style.display = 'flex';     // 🔄 Mostrar spinner
+  tbody.innerHTML = '';   
+
+   fetch('https://appsapventasapi.azurewebsites.net/api/ProcesoPrePedido/SearchPrePedidoAsync?'+ new URLSearchParams({ codusuario: codvendedor }))
+      .then(r => r.json())
+      .then(data => pintarTabla(data))
+       .catch(error => {
+        console.error(error);
+      tbody.innerHTML = '<tr><td colspan="8" class="text-danger text-center">Error al cargar los datos</td></tr>';
+    })
+    .finally(() => {
+      spinner.style.display = 'none';  //  Ocultar spinner cuando termine
+    });
+
+    // 2. Llenar la tabla
+    function pintarTabla(datos) {
+      const tbody = document.getElementById('data-body');
+      tbody.innerHTML = '';   
+
+         // limpia por si acaso
+      datos.forEach(u => {
+        const tr = document.createElement('tr');
+        
+        tr.innerHTML = `
+          <td>
+              <div class="form-check text-center m-0">
+                <input class="form-check-input check-fila" type="checkbox" value="${u.nroPrePedido}">
+              </div>
+          </td>
+          <td>${u.fechaRegistro}</td>
+          <td>${u.nroPrePedido}</td>
+          <td>${u.ocliente.nomCliente}</td>
+          <td>${u.ocliente.nroDocumento}</td>
+          <td>${u.codvendedor}</td>
+          <td>${u.nomClienteResponsable}</td>
+          <td>${u.fechaConfirmacion}</td>
+          <td>${u.ofabricantes.codFabricante}</td>
+          <td>${u.ofabricantes.nomFabricante}</td>
+          <td>${u.canal}</td>
+          <td>
+           <button class="btn btn-detalle btn-sm"
+        data-user='${encodeURIComponent(JSON.stringify(u.nroPrePedido))}'>
+            <i class="fas fa-search text-white"></i>
+          </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  }
+
+const modalElement = document.getElementById('detalleModal');
+
+// Delegación para clic en fila o en botón lupa
+document.getElementById('data-body').addEventListener('click', async function (e) {
+  const checkbox = e.target.closest('input[type="checkbox"]');
+  const boton = e.target.closest('.btn-detalle');
+  const fila = e.target.closest('tr');
+
+  if (!fila) return;
+
+  // Si el clic fue en un checkbox, solo marcar y salir
+  if (checkbox) {
+    fila.classList.toggle('fila-seleccionada', checkbox.checked);
+    return;
+  }
+
+  let nroPedido = '';
+  let canal = '';
+  if (boton) {
+    // Si se hizo clic en el botón lupa
+    const dataUser = boton.getAttribute('data-user');
+    if (!dataUser) return;
+    nroPedido = decodeURIComponent(dataUser).replace(/"/g, '');
+  } else {
+    // Si se hizo clic en otra parte de la fila (excepto el checkbox)
+    nroPedido = fila.querySelector('td:nth-child(3)')?.textContent?.trim();// Asegúrate que sea la columna correcta
+  
+    canal = fila.querySelector('td:nth-child(11)')?.textContent?.trim();
+    }
+
+  if (!nroPedido) return;
+
+  const spinner = document.getElementById('spinner-overlay');
+  spinner.style.display = 'flex';
+
+  try {
+    await cargarDetallePrePedido(nroPedido,canal);
+
+    setTimeout(() => {
+      spinner.style.display = 'none';
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }, 1000);
+  } catch (error) {
+    spinner.style.display = 'none';
+    console.error('❌ Error al cargar detalle:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo cargar el detalle del pre-pedido.',
+    });
+  }
+});
+
+let datosPrePedidoSeleccionado = null;
+let areaVendedor = "";
+
+// Función para llenar el contenido del modal 
+async function cargarDetallePrePedido(nroPedido,canal) {
+  try {
+        const area = localStorage.getItem('area');
+        const areaVendedor = area;
+    const response = await fetch(
+     'https://appsapventasapi.azurewebsites.net/api/ProcesoPrePedido/SearchPrePedidoDetalleByNroPrePedidoAsync?' +
+   //  'http://localhost:5232/api/ProcesoPrePedido/SearchPrePedidoDetalleByNroPrePedidoAsync?' +
+     
+      new URLSearchParams({ nroPrePedido: nroPedido, areaVendedor:areaVendedor ,accion:1})
+    );
+
+
+   
+
+    
+    const detalle = await response.json();
+  let validaAreaVendedor = getEtiquetaPrecio(areaVendedor, canal);
+
+    datosPrePedidoSeleccionado = detalle;
+
+    if (!detalle) {
+      throw new Error("No se recibió detalle del pre-pedido.");
+    }
+
+    const articulos = detalle.lArticulo ?? [];
+    const filasArticulos = articulos.map(a => {
+      let precioParametro = 0.00;
+
+      
+
+      return `
+        <tr>
+          <td>
+            <div class="image-container">
+              <img src="${a.imagen || 'img/producto-sin-imagen.jpg'}" alt="Producto" class="product-image" style="width: 70px; height: auto; object-fit: contain;">
+            </div>
+          </td>
+          <td class="text-center">${a.codigo}</td>
+          <td class="text-center" style="min-width:100%;">${a.modelo}</td>
+          <td class="text-center">${a.color}</td>
+          <td class="text-center">${a.codAnexo}</td>
+          <td colspan="8">${a.curva}</td>
+          <td class="text-center">${a.totalCajas}</td>
+          <td class="text-center">${a.totalPares}</td>
+          <td class="text-center">${(a.precioSugerido ?? 0).toFixed(2)}</td>
+          <td class="text-center">${a.precioParametro.toFixed(2)}</td>
+          <td class="text-center">${a.importeTotalVenta.toFixed(2)}</td>
+        </tr>
+      `;
+    }).join('');
+
+    const filaTotales = `
+      <tr class="fw-bold" style="background-color: #fff8ed;">
+        <td colspan="13" class="text-center">Totales</td>
+        <td class="text-center">${detalle.totalCajasGlobal ?? 0}</td>
+        <td class="text-center">${detalle.totalParesGlobal ?? 0}</td>
+    
+        <td class="text-center"></td>
+        <td class="text-center"></td>
+        <td class="text-center">${(detalle.precioTotalVenta ?? 0).toFixed(2)}</td>
+        
+      </tr>
+    `;
+    const filaIGV = `
+  <tr class="fw-bold" style="background-color:#fff8ed;">
+    <td colspan="16"></td>
+    <td class="text-end pe-3">IGV (18%):</td>
+    <td class="text-center">${(detalle.porcentajeIgv ?? 0).toFixed(2)}</td>
+  </tr>
+`;
+
+const filaTotal = `
+  <tr class="fw-bold" style="background-color:#fff8ed;">
+    <td colspan="16"></td>
+    <td class="text-end pe-3">TOTAL:</td>
+    <td class="text-center">${(detalle.precioTotalVentaIgv ?? 0).toFixed(2)}</td>
+  </tr>
+`;
+
+    const tablaHTML = filasArticulos + filaTotales+filaIGV+filaTotal;
+
+    const cliente = detalle.ocliente ?? {};
+    const fabricante = detalle.ofabricante ?? {};
+
+    document.getElementById('modal-body').innerHTML = `
+      <div class="container-fluid px-2">
+        <div class="tarjeta-azaleia p-3 mb-4">
+          <div class="tarjeta-titulo mb-4 d-flex align-items-center">
+            <i class="bi bi-card-checklist me-2 fs-5 text-white"></i>
+            <span class="fs-5 text-white">Resumen del Pre-Pedido</span>
+          </div>
+
+          <div class="row gy-2 mb-3">
+            <div class="col-12 col-md-6">
+              <p class="mb-0"><strong>Fecha Registro:</strong> ${detalle.fechaRegistro ?? '-'}</p>
+            </div>
+            <div class="col-12 col-md-6">
+              <p class="mb-0"><strong>Código Vendedor:</strong> ${detalle.codvendedor ?? '-'}</p>
+            </div>
+          </div>
+
+          <div class="row gy-4">
+            <div class="col-12 col-md-6">
+              <h6 class="text-azaleia mb-2">
+                <i class="bi bi-person-fill me-1"></i> Cliente
+              </h6>
+              <p class="mb-1"><strong>Nombres:</strong> ${cliente.nomCliente ?? '-'}</p>
+              <p class="mb-0"><strong>Nro Documento:</strong> ${cliente.nroDocumento ?? '-'}</p>
+            </div>
+            <div class="col-12 col-md-6">
+              <h6 class="text-azaleia mb-2">
+                <i class="bi bi-diagram-3-fill me-1"></i> Canal
+              </h6>
+              <p class="mb-0"><strong>Nombre:</strong> ${detalle.canal ?? '-'}</p>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="row gy-4">
+            <div class="col-12 col-md-6">
+              <h6 class="text-azaleia mb-2">
+                <i class="bi bi-box-seam me-1"></i> Producto
+              </h6>
+              <p class="mb-1"><strong>Código:</strong> ${fabricante.codCatalogo ?? '-'}</p>
+              <p class="mb-0"><strong>Descripción:</strong> ${fabricante.nombreCatalogo ?? '-'}</p>
+            </div>
+            <div class="col-12 col-md-6">
+              <h6 class="text-azaleia mb-2">
+                <i class="bi bi-building me-1"></i> Fabricante
+              </h6>
+              <p class="mb-1"><strong>Código:</strong> ${fabricante.codFabricante ?? '-'}</p>
+              <p class="mb-0"><strong>Nombre:</strong> ${fabricante.nomFabricante ?? '-'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tarjeta-azaleia mt-4">
+        <div class="tarjeta-titulo mb-3 d-flex align-items-center">
+          <i class="bi bi-box-seam fs-5 me-2 text-white"></i>
+          <span class="fs-5 text-white">Artículos</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover table-sm table-azaleia mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th style="min-width:90px;">Imagen</th>
+                <th style="min-width:120px;">Colección</th>
+                <th style="min-width:100px;">Modelo</th>
+                <th style="min-width:100px;">Color</th>
+                <th style="min-width:80px;">Anexo</th>
+                <th colspan="8" class="text-center">Curva</th>
+                <th class="text-end" style="min-width:90px;">T. Cajas</th>
+                <th class="text-end" style="min-width:90px;">T. Pares</th>
+                <th class="text-end" style="min-width:110px;">Precio Suge.</th>
+                <th class="text-end" style="min-width:110px;">${validaAreaVendedor}</th>
+                <th class="text-end" style="min-width:110px;">T. Precio Venta</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tablaHTML}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="footer-row mt-4 d-flex flex-column flex-md-row justify-content-between">
+        <div><strong>Responsable:</strong> ${detalle.nomClienteResponsable ?? '-'}</div>
+        <div><strong>Fecha Confirmación:</strong> ${detalle.fechaConfirmacion ?? '-'}</div>
+      </div>
+
+      <div class="modal-footer">
+               <button type="button" class="btn btn-imprimir" onclick="exportarDetalleExcel()">
+                  <i class="bi bi-file-earmark-arrow-down me-1"></i>Exportar</button>
+        <button type="button" class="btn btn-imprimir" onclick="imprimirProformaDesdePopup()">
+           <i class="bi bi-printer me-1"></i>Imprimir</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x-lg me-1"></i>Cerrar</button>
+      </div>
+    `;
+   
+  } catch (error) {
+    console.error("❌ Error al cargar detalle:", error);
+    throw error;
+  }
+}
+
+function getEtiquetaPrecio(areaVendedor, canal) {
+  // Si es gerencia, manda el canal del pedido
+  let areaBase = areaVendedor;
+  let canalPedido = getCanalPedido(canal);
+  if (areaVendedor === "Administrador"||areaVendedor === "gerencia") {
+    areaBase = canalPedido || ""; // ej: "mayorista", "tienda", etc.
+  }
+
+  const area = areaBase.toLowerCase();
+
+  if (area === "mayorista") {
+    return "Precio Mayorista";
+  } else if (area === "catalogo") {
+    return "Precio Catálogo";
+  } else if (area === "tienda") {
+    return "Precio Tienda";
+  } else if (area === "ecommerce") {
+    return "Precio Ecommerce";
+  }
+
+  return "Precio";
+}
+
+
+function getCanalPedido(canal) {
+  const canalNorm = (canal || "").toUpperCase().trim();
+
+  if (canalNorm === "P. STOCK") {
+    return "stock";
+  }
+
+  if (canalNorm === "CLIENTES") {
+    return "mayorista";
+  }
+
+  if (canalNorm === "CATALOGO") {
+    return "catalogo";
+  }
+
+  if (canalNorm === "E-COMERCE") {
+    return "ecommerce";
+  }
+
+  return "tienda";
+}
+
+
+// Cerrar modal y limpiar el fondo al ocultar
+modalElement.addEventListener('hidden.bs.modal', () => {
+  document.body.classList.remove('modal-open');
+  const backdrop = document.querySelector('.modal-backdrop');
+  if (backdrop) backdrop.remove();
+});
+
+
+  //Metodo de buscador por caaja de texto
+    document.getElementById('buscador').addEventListener('input', function () {
+  const filtro = this.value.toLowerCase();
+  const filas = document.querySelectorAll('#data-body tr');
+
+  filas.forEach(fila => {
+    const textoFila = fila.textContent.toLowerCase();
+    fila.style.display = textoFila.includes(filtro) ? '' : 'none';
+  });
+});
+  
+// Función para convertir imagen a base64
+async function convertirImagenABase64(url) {
+  try {
+   const response = await fetch('https://corsproxy.io/?' + encodeURIComponent(url), { mode: 'cors' });
+    const blob = await response.blob();
+
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.warn("⚠️ Error al convertir imagen:", url, error);
+    return null;
+  }
+}
+// Método para imprimir la fila seleccionada (secuencial)
+async function imprimirProformaDesdePopup() {
+  const spinner = document.getElementById('spinner-overlay');
+  spinner.style.display = 'flex';
+
+  // Cierra el modal si existe
+  const modalElement = document.getElementById('detalleModal');
+  const modalInstance = bootstrap.Modal.getInstance(modalElement);
+  if (modalInstance) modalInstance.hide();
+
+  try {
+    const areaVendedor = localStorage.getItem('area');
+
+    // Base del request (sin accionTipo; se setea en cada llamada)
+    const baseRequest = {
+      PdfPrePedidoRequest: datosPrePedidoSeleccionado,
+      AreaVendedor: areaVendedor
+    };
+
+    // 1) VENDEDOR (primero)
+    let linkVendedor;
+    try {
+      linkVendedor = await postPdf({ ...baseRequest, accion: 'vendedor' }); // <-- usa 'Accion' si tu back lo espera así
+      abrirPdf(linkVendedor, 'vendedor');
+    } catch (e) {
+      console.error('Error PDF Vendedor:', e);
+      Swal.fire({ icon: 'error', text: '❌ No se pudo generar el PDF del vendedor.' });
+      // Si quieres abortar aquí y NO seguir con el cliente, descomenta:
+      // throw e;
+    }
+
+    // pequeño delay para evitar bloqueos de popups
+    await new Promise(r => setTimeout(r, 300));
+
+    // 2) CLIENTE (después)
+    let linkCliente;
+    try {
+      linkCliente = await postPdf({ ...baseRequest, accion: 'clientes' }); // <-- usa 'Accion' si tu back lo espera así
+      abrirPdf(linkCliente, 'clientes');
+    } catch (e) {
+      console.error('Error PDF Cliente:', e);
+      Swal.fire({ icon: 'error', text: '❌ No se pudo generar el PDF del cliente.' });
+    }
+
+    // Mensaje final si al menos uno abrió
+    if (linkVendedor || linkCliente) {
+      Swal.fire({
+        icon: 'success',
+        text: `✅ PDFs generados${linkVendedor ? ' (vendedor)' : ''}${linkCliente ? ' (cliente)' : ''}.`,
+        timer: 2200,
+        showConfirmButton: false
+      });
+    }
+  } catch (err) {
+    console.error('Error al generar PDFs', err);
+    Swal.fire({ icon: 'error', text: '❌ Ocurrió un error generando los PDFs.' });
+  } finally {
+    spinner.style.display = 'none';
+  }
+}
+
+/* -------------------- helpers -------------------- */
+
+async function postPdf(requestBody) {
+  const url = 'https://appsapventasapi.azurewebsites.net/api/ProcesoPrePedido/GenerarPdfImpresionPrePedido';
+
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(requestBody) // contiene accionTipo o Accion dentro del body
+  });
+
+  if (!resp.ok) {
+    const msg = await resp.text().catch(() => '');
+    throw new Error(`HTTP ${resp.status} ${msg}`);
+  }
+
+  const contentType = resp.headers.get('content-type') || '';
+
+  if (contentType.includes('application/pdf')) {
+    const blob = await resp.blob();
+    return URL.createObjectURL(blob);
+  }
+
+  if (contentType.includes('application/json')) {
+    const data = await resp.json();
+    if (data?.url)   return data.url;
+    if (data?.base64) return base64ToBlobUrl(data.base64, 'application/pdf');
+    throw new Error('JSON inesperado en respuesta (sin url/base64)');
+  }
+
+  const text = await resp.text();
+  if (/^https?:\/\//i.test(text)) return text;                        // backend devuelve URL
+  if (/^JVBER/i.test(text)) return base64ToBlobUrl(text, 'application/pdf'); // base64 PDF
+
+  throw new Error('Respuesta no reconocida como URL ni PDF');
+}
+
+function abrirPdf(link, etiqueta = '') {
+  if (!link) return;
+  const w = window.open(link, '_blank');
+  if (!w) {
+    Swal.fire({ icon: 'warning', text: `⚠️ El visor de ${etiqueta || 'PDF'} fue bloqueado. Habilita pop-ups.` });
+  }
+}
+
+function base64ToBlobUrl(b64, mime) {
+  const clean = (b64 || '').split(',').pop();
+  const byteChars = atob(clean);
+  const byteNumbers = Array.from(byteChars, c => c.charCodeAt(0));
+  const blob = new Blob([new Uint8Array(byteNumbers)], { type: mime });
+  return URL.createObjectURL(blob);
+}
+// Método para agregar un nuevo prepedido
+function agregarPrepedido() {
+  // Redirige a una página o abre un modal
+  window.location.href = 'calzados.html';
+}
+
+ const params = new URLSearchParams(window.location.search);
+  
+
+// Método para actualizar el listado
+async function editarPrepedido() {
+  const checks = document.querySelectorAll('.check-fila:checked');
+
+  if (checks.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      text: 'Selecciona una fila para actualizar.'
+    });
+    return;
+  }
+
+  if (checks.length > 1) {
+    Swal.fire({
+      icon: 'info',
+      text: 'Solo se puede actualizar un pre-pedido a la vez.'
+    });
+    return;
+  }
+   const area = localStorage.getItem('area');
+   const areaVendedor = area;
+   const nro = checks[0].value;
+
+    const response = await fetch(
+      'https://appsapventasapi.azurewebsites.net/api/ProcesoPrePedido/SearchPrePedidoDetalleByNroPrePedidoAsync?' +
+   //  'http://localhost:5232/api/ProcesoPrePedido/SearchPrePedidoDetalleByNroPrePedidoAsync?' +
+     
+      new URLSearchParams({ nroPrePedido: nro, areaVendedor:areaVendedor ,accion:2})
+    );
+        const detalleEdita = await response.json();
+       datosPrePedidoSeleccionado = detalleEdita; 
+
+// Si no hay detalle en memoria, lo cargamos usando el nro desde el checkbox
+  if (!datosPrePedidoSeleccionado) {
+    const nro = checks[0].value; // value="${u.nroPrePedido}" en la tabla
+    try {
+      await cargarDetallePrePedido(nro); // esto asigna datosPrePedidoSeleccionado = detalle;
+    
+
+    } catch (e) {
+      Swal.fire({ icon: 'error', text: 'No se pudo cargar el pre-pedido seleccionado.' });
+      return;
+    }
+  }
+
+  // A esta altura ya debemos tenerlo
+  const d = datosPrePedidoSeleccionado;
+  if (!d) {
+    Swal.fire({ icon: 'error', text: 'No hay datos del pre-pedido.' });
+    return;
+  }
+
+  const datos = {
+    nroPrePedido: d.nroPrePedido,
+    fechaRegistro: d.fechaRegistro,
+    nroDocumento: d.ocliente?.nroDocumento,
+    nomCliente: d.ocliente?.nomCliente,
+    codvendedor: d.codvendedor,
+    nomResponsable: d.nomClienteResponsable,
+    fechaConfirmacion: d.fechaConfirmacion,
+    codCatalogo: d.ofabricante?.codCatalogo,
+    nombreCatalogo: d.ofabricante?.nombreCatalogo,
+    codFabricante: d.ofabricante?.codFabricante,
+    nomFabricante: d.ofabricante?.nomFabricante,
+    codCanal: d.codCanal,
+    canal: d.canal,
+    precioTotalSugerido: d.precioTotalSugerido,
+    precioTotalVenta: d.precioTotalVenta,
+    totalCajasGlobal: d.totalCajasGlobal,
+    totalParesGlobal: d.totalParesGlobal,
+    lArticulo: d.lArticulo,
+    email:d.email,
+    celular:d.celular,
+    fechaDesde:d.fechaDesde,
+    fechaHasta:d.fechaHasta,
+    idAnexo:d.idAnexo,
+    idPrepedidoDetalle:d.idPrepedidoDetalle,
+    idPrepedido:d.idPrepedido
+ 
+  };
+//console.log('Datos a enviar para edición:', JSON.stringify(datos));
+  sessionStorage.setItem('prepedidoSeleccionado', JSON.stringify(datos));
+ window.location.href = 'ActualizarPrePedido.html';
+ // location.href = new URL('./ActualizarPrePedidobk.html', location.href).toString();
+   // window.editarPrepedido = editarPrepedido;
+}
+
+
+function etiquetaPrecioPorArea(area) {
+  switch ((area || '').trim()) {
+    case 'Mayorista': return 'Precio Mayorista';
+    case 'Catalogo':  return 'Precio Catálogo';
+    case 'Tienda':    return 'Precio Tienda';
+    default:          return 'Precio Ecommerce';
+  }
+}
+
+function numero(n) {
+  const x = Number(n);
+  return Number.isFinite(x) ? x : 0;
+}
+
+async function exportarDetalleExcel() {
+  try {
+    if (!datosPrePedidoSeleccionado || !Array.isArray(datosPrePedidoSeleccionado.lArticulo)) {
+      return Swal.fire({ icon: 'info', text: 'No hay detalle cargado para exportar.' });
+    }
+
+    const area = localStorage.getItem('area') || 'Ecommerce';
+    const etiquetaPrecio = etiquetaPrecioPorArea(area);
+    const detalle = datosPrePedidoSeleccionado;
+
+    // Construir filas del detalle
+    const rows = detalle.lArticulo.map(a => {
+      const precioSugerido = numero(a.precioSugerido);
+      const precioParam    = numero(a.precioParametro); // ya viene calculado del API
+      const totalCajas     = numero(a.totalCajas);
+      const totalPares     = numero(a.totalPares);
+      const totalVenta     = +(precioParam * totalCajas).toFixed(2); // ajusta si el total es por pares
+
+      return {
+        'Código': a.codigo || '',
+        'Modelo': a.modelo || '',
+        'Color': a.color || '',
+        'Curva': (a.curva || '').toString(),
+        'T. Cajas': totalCajas,
+        'T. Pares': totalPares,
+        'Precio Sugerido': +precioSugerido.toFixed(2),
+        [etiquetaPrecio]: +precioParam.toFixed(2),
+        'Total Precio Venta': totalVenta
+      };
+    });
+
+    if (!rows.length) {
+      return Swal.fire({ icon: 'info', text: 'No hay artículos en el detalle.' });
+    }
+
+    // Totales (usa lo que venga del backend si existe; si no, calcula)
+    const totalCajas = numero(detalle.totalCajasGlobal) || rows.reduce((acc, r) => acc + numero(r['T. Cajas']), 0);
+    const totalPares = numero(detalle.totalParesGlobal) || rows.reduce((acc, r) => acc + numero(r['T. Pares']), 0);
+    const totalVenta = numero(detalle.precioTotalVenta) || rows.reduce((acc, r) => acc + numero(r['Total Precio Venta']), 0);
+
+    // Workbook y hoja Detalle
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    // Agregar fila de totales al final
+    const lastRow = rows.length + 2; // 1-based + header
+    XLSX.utils.sheet_add_aoa(ws, [[
+       '', '', '','Totales',
+      totalCajas, totalPares, '', '', +totalVenta.toFixed(2)
+    ]], { origin: `A${lastRow}` });
+
+    // Ancho de columnas automático
+    const headers = Object.keys(rows[0]);
+    ws['!cols'] = headers.map(h => {
+      const headerLen = h.length;
+      const maxCell = rows.reduce((m, r) => Math.max(m, String(r[h] ?? '').length), 0);
+      return { wch: Math.min(Math.max(headerLen, maxCell) + 2, 60) };
+    });
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Detalle');
+
+    // (Opcional) Hoja Resumen
+    const resumen = [
+      ['Nro Pre-Pedido', detalle.nroPrePedido || ''],
+      ['Fecha Registro', detalle.fechaRegistro || ''],
+      ['Vendedor',       detalle.codvendedor || ''],
+      ['Cliente',        (detalle.ocliente && detalle.ocliente.nomCliente) || ''],
+      ['Documento',      (detalle.ocliente && detalle.ocliente.nroDocumento) || ''],
+      ['Canal',          detalle.canal || ''],
+      ['Área de Precio', area],
+      ['Etiqueta Precio', etiquetaPrecio],
+      ['Total Cajas',    totalCajas],
+      ['Total Pares',    totalPares],
+      ['Precio Total Venta', +totalVenta.toFixed(2)]
+    ];
+    const ws2 = XLSX.utils.aoa_to_sheet(resumen);
+    ws2['!cols'] = [{ wch: 22 }, { wch: 40 }];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Resumen');
+
+    // Nombre de archivo
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const fileName = `${detalle.nroPrePedido}_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.xlsx`;
+
+    XLSX.writeFile(wb, fileName);
+    Swal.fire({ icon: 'success', text: '📄 Excel de detalle generado con éxito.' });
+  } catch (err) {
+    console.error('Error exportando detalle:', err);
+    Swal.fire({ icon: 'error', text: '❌ Error al exportar el detalle.' });
+  }
+}
+
+
+</script>
+</body>
+</html>
