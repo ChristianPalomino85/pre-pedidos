@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Componentes de Diseño - Azaleia</title>
+
+  <!-- CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <style>
+    .component-section {
+      margin-bottom: var(--space-8);
+    }
+    .section-title {
+      font-size: var(--font-size-3xl);
+      color: var(--az-primary);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-2);
+      border-bottom: 3px solid var(--az-primary);
+    }
+    .code-preview {
+      background: var(--az-gray-900);
+      color: #00ff00;
+      padding: var(--space-3);
+      border-radius: var(--radius-base);
+      font-family: var(--font-family-mono);
+      font-size: var(--font-size-sm);
+      overflow-x: auto;
+      margin-top: var(--space-2);
+    }
+    .component-demo {
+      background: var(--az-white);
+      padding: var(--space-4);
+      border-radius: var(--radius-lg);
+      border: 2px solid var(--az-gray-200);
+      margin-bottom: var(--space-3);
+    }
+    .nav-sidebar {
+      position: sticky;
+      top: 20px;
+    }
+    .nav-sidebar .nav-link {
+      color: var(--az-gray-700);
+      padding: var(--space-1) var(--space-2);
+      border-left: 3px solid transparent;
+      transition: all var(--transition-fast);
+    }
+    .nav-sidebar .nav-link:hover,
+    .nav-sidebar .nav-link.active {
+      color: var(--az-primary);
+      border-left-color: var(--az-primary);
+      background: var(--az-primary-pale);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, var(--az-primary) 0%, var(--az-primary-dark) 100%); box-shadow: var(--shadow-md);">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white fw-bold" href="#">
+        <i class="bi bi-palette-fill me-2"></i>
+        Sistema de Diseño Azaleia
+      </a>
+      <button class="btn btn-outline-light btn-sm" onclick="window.location.href='Dasboard.html'">
+        <i class="bi bi-house-fill me-1"></i>
+        Volver al Dashboard
+      </button>
+    </div>
+  </nav>
+
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <!-- Sidebar de navegación -->
+      <div class="col-lg-2 d-none d-lg-block">
+        <nav class="nav-sidebar">
+          <nav class="nav flex-column">
+            <a class="nav-link active" href="#colores">Colores</a>
+            <a class="nav-link" href="#tipografia">Tipografía</a>
+            <a class="nav-link" href="#botones">Botones</a>
+            <a class="nav-link" href="#cards">Cards</a>
+            <a class="nav-link" href="#kpis">KPIs</a>
+            <a class="nav-link" href="#formularios">Formularios</a>
+            <a class="nav-link" href="#tablas">Tablas</a>
+            <a class="nav-link" href="#badges">Badges</a>
+            <a class="nav-link" href="#componentes-js">Componentes JS</a>
+          </nav>
+        </nav>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="col-lg-10">
+        <!-- Introducción -->
+        <div class="card-az mb-5">
+          <h1 class="display-4 text-primary mb-3">
+            <i class="bi bi-stars me-3"></i>
+            Sistema de Diseño Mejorado
+          </h1>
+          <p class="lead">
+            Este documento muestra todos los componentes visuales mejorados del sistema Azaleia.
+            Incluye nuevos estilos, componentes interactivos y mejores prácticas de diseño.
+          </p>
+          <div class="alert alert-info mt-3">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <strong>Nuevo:</strong> Todos los componentes ahora usan el sistema de diseño centralizado en <code>css/main.css</code>
+          </div>
+        </div>
+
+        <!-- Colores -->
+        <div id="colores" class="component-section">
+          <h2 class="section-title">
+            <i class="bi bi-palette-fill me-2"></i>
+            Paleta de Colores
+          </h2>
+
+          <div class="component-demo">
+            <h4 class="mb-3">Colores Principales</h4>
+            <div class="row g-3">
+              <div class="col-md-3">
+                <div class="p-4 text-center text-white" style="background: var(--az-primary); border-radius: var(--radius-base);">
+                  <strong>Primary</strong><br>
+                  <small>#d46321</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-4 text-center text-white" style="background: var(--az-primary-dark); border-radius: var(--radius-base);">
+                  <strong>Primary Dark</strong><br>
+                  <small>#b34710</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-4 text-center" style="background: var(--az-primary-pale); border-radius: var(--radius-base); border: 2px solid var(--az-primary);">
+                  <strong>Primary Pale</strong><br>
+                  <small>#fff5eb</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-4 text-center" style="background: var(--az-gray-50); border-radius: var(--radius-base); border: 2px solid var(--az-gray-300);">
+                  <strong>Gray 50</strong><br>
+                  <small>#f8f9fa</small>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="mt-4 mb-3">Colores Semánticos</h4>
+            <div class="row g-3">
+              <div class="col-md-3">
+                <div class="p-4 text-center text-white" style="background: var(--az-success); border-radius: var(--radius-base);">
+                  <i class="bi bi-check-circle-fill fs-3"></i><br>
+                  <strong>Success</strong>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-4 text-center text-white" style="background: var(--az-danger); border-radius: var(--radius-base);">
+                  <i class="bi bi-x-circle-fill fs-3"></i><br>
+                  <strong>Danger</strong>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-4 text-center text-dark" style="background: var(--az-warning); border-radius: var(--radius-base);">
+                  <i class="bi bi-exclamation-triangle-fill fs-3"></i><br>
+                  <strong>Warning</strong>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-4 text-center text-white" style="background: var(--az-info); border-radius: var(--radius-base);">
+                  <i class="bi bi-info-circle-fill fs-3"></i><br>
+                  <strong>Info</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tipografía -->
+        <div id="tipografia" class="component-section">
+          <h2 class="section-title">
+            <i class="bi bi-fonts me-2"></i>
+            Tipografía
+          </h2>
+
+          <div class="component-demo">
+            <h1>Heading 1 - Display Grande</h1>
+            <h2>Heading 2 - Títulos de Sección</h2>
+            <h3>Heading 3 - Subsecciones</h3>
+            <h4>Heading 4 - Títulos Menores</h4>
+            <h5>Heading 5 - Subtítulos</h5>
+            <h6>Heading 6 - Pequeños</h6>
+            <p class="mt-3">
+              Este es un párrafo de texto regular con el tamaño base de 16px.
+              La tipografía usa Segoe UI como fuente principal para mejor legibilidad.
+            </p>
+            <p class="text-muted">
+              <small>Texto pequeño para información secundaria (14px)</small>
+            </p>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div id="botones" class="component-section">
+          <h2 class="section-title">
+            <i class="bi bi-cursor-fill me-2"></i>
+            Botones
+          </h2>
+
+          <div class="component-demo">
+            <h4 class="mb-3">Botones Principales</h4>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+              <button class="btn-azaleia">
+                <i class="bi bi-check-circle me-1"></i>
+                Botón Principal
+              </button>
+              <button class="btn-outline-az">
+                <i class="bi bi-pencil me-1"></i>
+                Botón Outline
+              </button>
+              <button class="btn-ghost-az">
+                <i class="bi bi-eye me-1"></i>
+                Botón Ghost
+              </button>
+              <button class="btn-azaleia" disabled>
+                <i class="bi bi-ban me-1"></i>
+                Deshabilitado
+              </button>
+            </div>
+
+            <h4 class="mb-3">Tamaños de Botones</h4>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+              <button class="btn-azaleia btn-sm">
+                <i class="bi bi-star-fill me-1"></i>
+                Pequeño
+              </button>
+              <button class="btn-azaleia">
+                <i class="bi bi-star-fill me-1"></i>
+                Normal
+              </button>
+              <button class="btn-azaleia btn-lg">
+                <i class="bi bi-star-fill me-1"></i>
+                Grande
+              </button>
+            </div>
+
+            <h4 class="mb-3">Botones de Ancho Completo</h4>
+            <button class="btn-azaleia btn-full">
+              <i class="bi bi-download me-2"></i>
+              Botón de Ancho Completo
+            </button>
+          </div>
+        </div>
+
+        <!-- Cards -->
+        <div id="cards" class="component-section">
+          <h2 class="section-title">
+            <i class="bi bi-card-heading me-2"></i>
+            Cards
+          </h2>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="card-az">
+                <div class="card-az-header">
+                  <h3 class="card-az-title mb-0">
+                    <i class="bi bi-box me-2"></i>
+                    Card Básica
+                  </h3>
+                </div>
+                <div class="card-az-body">
+                  <p>Esta es una card mejorada con el nuevo sistema de diseño. Incluye efectos hover y mejor espaciado.</p>
+                </div>
+                <div class="card-az-footer">
+                  <button class="btn-azaleia btn-sm">Ver más</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="card-az">
+                <div class="card-az-header">
+                  <h3 class="card-az-title mb-0">
+                    <i class="bi bi-graph-up me-2"></i>
+                    Con Icono
+                  </h3>
+                  <span class="badge-primary">Nuevo</span>
+                </div>
+                <div class="card-az-body">
+                  <p>Las cards ahora tienen mejor elevación y transiciones suaves al hacer hover.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="card-az">
+                <div class="card-az-header">
+                  <h3 class="card-az-title mb-0">
+                    <i class="bi bi-star-fill me-2"></i>
+                    Interactiva
+                  </h3>
+                </div>
+                <div class="card-az-body">
+                  <p>Pasa el mouse sobre esta card para ver el efecto de elevación.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div id="kpis" class="component-section">
+          <h2 class="section-title">
+            <i class="bi bi-speedometer2 me-2"></i>
+            Tarjetas KPI
+          </h2>
+
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon">
+                  <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="kpi-value">1,245</div>
+                <div class="kpi-label">Total Productos</div>
+                <div class="kpi-trend up">
+                  <i class="bi bi-arrow-up"></i>
+                  <span>+12.5%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon" style="background: rgba(40, 167, 69, 0.1); color: var(--az-success);">
+                  <i class="bi bi-cart-check-fill"></i>
+                </div>
+                <div class="kpi-value" style="color: var(--az-success);">$45.2K</div>
+                <div class="kpi-label">Ventas del Mes</div>
+                <div class="kpi-trend up">
+                  <i class="bi bi-arrow-up"></i>
+                  <span>+8.3%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon" style="background: rgba(255, 193, 7, 0.1); color: var(--az-warning);">
+                  <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="kpi-value" style="color: var(--az-warning);">328</div>
+                <div class="kpi-label">Clientes Activos</div>
+                <div class="kpi-trend up">
+                  <i class="bi bi-arrow-up"></i>
+                  <span>+5.1%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="kpi-card">
+                <div class="kpi-icon" style="background: rgba(220, 53, 69, 0.1); color: var(--az-danger);">
+                  <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="kpi-value" style="color: var(--az-danger);">12</div>
+                <div class="kpi-label">Pendientes</div>
+                <div class="kpi-trend down">
+                  <i class="bi bi-arrow-down"></i>
+                  <span>-3.2%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formularios -->
+        <div id="formularios" class="component-section">
+          <h2 class="section-title">
+            <i class="bi bi-input-cursor me-2"></i>
+            Formularios
+          </h2>
+
+          <div class="component-demo">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-group-az">
+                  <label class="form-label-az">Nombre Completo</label>
+                  <input type="text" class="form-control-az" placeholder="Ingresa tu nombre">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group-az">
+                  <label class="form-label-az">Email</label>
+                  <input type="email" class="form-control-az" placeholder="ejemplo@azaleia.com">
+                  <span class="form-help-az">Nunca compartiremos tu email</span>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group-az">
+                  <label class="form-label-az">Campo Válido</label>
+                  <input type="text" class="form-control-az is-valid" value="Dato correcto">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group-az">
+                  <label class="form-label-az">Campo Inválido</label>
+                  <input type="text" class="form-control-az is-invalid" value="Dato incorrecto">
+                  <span class="form-error-az">Este campo es requerido</span>
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <div class="form-group-az">
+                  <label class="form-label-az">Comentarios</label>
+                  <textarea class="form-control-az" rows="3" placeholder="Escribe tus comentarios aquí..."></textarea>
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <button class="btn-azaleia">
+                  <i class="bi bi-send-fill me-2"></i>
+                  Enviar Formulario
+                </button>
+                <button class="btn-outline-az">
+                  <i class="bi bi-x-circle me-2"></i>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tablas -->
+        <div id="tablas" class="component-section">
+          <h2 class="section-title">
+            <i class="bi bi-table me-2"></i>
+            Tablas
+          </h2>
+
+          <div class="table-responsive-az">
+            <table class="table-az">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Precio</th>
+                  <th>Stock</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>001</td>
+                  <td>Zapato Casual Mujer</td>
+                  <td>Calzado</td>
+                  <td>S/ 129.90</td>
+                  <td>45</td>
+                  <td><span class="badge-success">Disponible</span></td>
+                </tr>
+                <tr>
+                  <td>002</td>
+                  <td>Sandalia Verano</td>
+                  <td>Calzado</td>
+                  <td>S/ 89.90</td>
+                  <td>12</td>
+                  <td><span class="badge-warning">Bajo Stock</span></td>
+                </tr>
+                <tr>
+                  <td>003</td>
+                  <td>Botas Invierno</td>
+                  <td>Calzado</td>
+                  <td>S/ 189.90</td>
+                  <td>0</td>
+                  <td><span class="badge-danger">Agotado</span></td>
+                </tr>
+                <tr>
+                  <td>004</td>
+                  <td>Zapatillas Deportivas</td>
+                  <td>Calzado</td>
+                  <td>S/ 159.90</td>
+                  <td>78</td>
+                  <td><span class="badge-success">Disponible</span></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="4" style="text-align: right;"><strong>Total Items:</strong></td>
+                  <td colspan="2"><strong>135</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Badges -->
+        <div id="badges" class="component-section">
+          <h2 class="section-title">
+            <i class="bi bi-tag-fill me-2"></i>
+            Badges
+          </h2>
+
+          <div class="component-demo">
+            <h4 class="mb-3">Badges de Estado</h4>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+              <span class="badge-primary">
+                <i class="bi bi-star-fill me-1"></i>
+                Primary
+              </span>
+              <span class="badge-success">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                Success
+              </span>
+              <span class="badge-danger">
+                <i class="bi bi-x-circle-fill me-1"></i>
+                Danger
+              </span>
+              <span class="badge-warning">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                Warning
+              </span>
+              <span class="badge-info">
+                <i class="bi bi-info-circle-fill me-1"></i>
+                Info
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Componentes JS -->
+        <div id="componentes-js" class="component-section">
+          <h2 class="section-title">
+            <i class="bi bi-code-slash me-2"></i>
+            Componentes JavaScript
+          </h2>
+
+          <div class="component-demo">
+            <h4 class="mb-3">Notificaciones Toast</h4>
+            <p>Sistema de notificaciones no intrusivas con diferentes tipos.</p>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+              <button class="btn-azaleia btn-sm" onclick="window.azToast?.success('Operación exitosa!')">
+                <i class="bi bi-check-circle me-1"></i>
+                Toast Success
+              </button>
+              <button class="btn-outline-az btn-sm" onclick="window.azToast?.error('Error al procesar')">
+                <i class="bi bi-x-circle me-1"></i>
+                Toast Error
+              </button>
+              <button class="btn-ghost-az btn-sm" onclick="window.azToast?.warning('Advertencia importante')">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Toast Warning
+              </button>
+              <button class="btn-azaleia btn-sm" onclick="window.azToast?.info('Información útil')">
+                <i class="bi bi-info-circle me-1"></i>
+                Toast Info
+              </button>
+            </div>
+
+            <h4 class="mb-3">Loading Spinner</h4>
+            <p>Indicador de carga global con mensaje personalizable.</p>
+            <button class="btn-azaleia" onclick="demoLoader()">
+              <i class="bi bi-arrow-repeat me-1"></i>
+              Mostrar Loader
+            </button>
+
+            <h4 class="mt-4 mb-3">Lazy Loading de Imágenes</h4>
+            <p>Las imágenes se cargan solo cuando están visibles en pantalla.</p>
+            <div class="alert alert-success">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <strong>Activado automáticamente</strong> para todas las imágenes con <code>data-src</code>
+            </div>
+
+            <h4 class="mt-4 mb-3">Tooltips Simples</h4>
+            <p>Agrega el atributo <code>data-tooltip</code> a cualquier elemento.</p>
+            <button class="btn-outline-az" data-tooltip="Este es un tooltip simple">
+              <i class="bi bi-info-circle me-1"></i>
+              Hover para tooltip
+            </button>
+          </div>
+        </div>
+
+        <!-- Documentación -->
+        <div class="card-az mt-5 mb-5">
+          <div class="card-az-header">
+            <h2 class="card-az-title mb-0">
+              <i class="bi bi-book me-2"></i>
+              Documentación y Uso
+            </h2>
+          </div>
+          <div class="card-az-body">
+            <h4>Archivos Principales:</h4>
+            <ul>
+              <li><code>css/main.css</code> - Sistema de diseño centralizado con variables CSS</li>
+              <li><code>js/components.js</code> - Componentes JavaScript interactivos</li>
+            </ul>
+
+            <h4 class="mt-3">Cómo Usar:</h4>
+            <ol>
+              <li>Incluye los archivos CSS y JS en tu HTML</li>
+              <li>Usa las clases predefinidas para botones, cards, formularios, etc.</li>
+              <li>Los componentes JS se inicializan automáticamente</li>
+              <li>Personaliza usando variables CSS en <code>:root</code></li>
+            </ol>
+
+            <h4 class="mt-3">Variables CSS Principales:</h4>
+            <div class="code-preview">
+--az-primary: #d46321;
+--az-primary-dark: #b34710;
+--font-size-base: 1rem;
+--space-2: 1rem;
+--radius-base: 0.5rem;
+--shadow-base: 0 4px 6px rgba(0,0,0,0.1);
+            </div>
+
+            <div class="alert alert-info mt-3">
+              <i class="bi bi-lightbulb-fill me-2"></i>
+              <strong>Tip:</strong> Puedes sobrescribir cualquier variable CSS en tu propio archivo para personalizar el diseño.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-light py-4 mt-5 border-top">
+    <div class="container text-center">
+      <p class="text-muted mb-0">
+        <i class="bi bi-heart-fill text-danger me-1"></i>
+        Sistema de Diseño Azaleia v2.0 - Mejorado con Componentes Modernos
+      </p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/components.js"></script>
+
+  <script>
+    // Demo del loader
+    function demoLoader() {
+      window.azLoader.show('Cargando datos...');
+      setTimeout(() => {
+        window.azLoader.hide();
+        window.azToast.success('¡Datos cargados correctamente!');
+      }, 2000);
+    }
+
+    // Navegación suave
+    document.querySelectorAll('.nav-sidebar a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.nav-sidebar a').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+
+        const targetId = link.getAttribute('href');
+        const target = document.querySelector(targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Mostrar toast de bienvenida
+    setTimeout(() => {
+      window.azToast?.success('¡Bienvenido al nuevo sistema de diseño!', 5000);
+    }, 500);
+  </script>
+</body>
+</html>

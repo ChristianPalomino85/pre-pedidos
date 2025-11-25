@@ -2,9 +2,15 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión – Azaleia</title>
+
+  <!-- CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <!-- JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     html, body {
@@ -17,73 +23,207 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: "Segoe UI", sans-serif;
-      padding: 20px;
+      padding: var(--space-3);
       animation: fadeInBody 0.6s ease-in-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Efecto de círculos decorativos */
+    body::before,
+    body::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.15;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--az-primary) 0%, transparent 70%);
+      top: -200px;
+      right: -200px;
+    }
+
+    body::after {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--az-primary-light) 0%, transparent 70%);
+      bottom: -150px;
+      left: -150px;
     }
 
     @keyframes fadeInBody {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
 
     .login-box {
       width: 100%;
-      max-width: 420px;
-      padding: 40px 30px;
-      background: #ffffff;
-      border-radius: 16px;
-      border: 2px solid rgba(212, 99, 33, 0.25);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-      animation: fadeInCard 0.8s ease;
+      max-width: 440px;
+      padding: var(--space-6) var(--space-5);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-xl);
+      border: 2px solid rgba(212, 99, 33, 0.2);
+      box-shadow: var(--shadow-xl);
+      animation: fadeInCard 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      position: relative;
+      z-index: 1;
     }
- .login-box img {
-      max-width: 160px;
+
+    .login-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-xl);
+      padding: 2px;
+      background: linear-gradient(135deg, var(--az-primary), var(--az-primary-light));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0.3;
+    }
+
+    .login-box img {
+      max-width: 180px;
       height: auto;
-      margin-bottom: 20px;
+      margin-bottom: var(--space-3);
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+      transition: transform 0.3s ease;
     }
+
+    .login-box img:hover {
+      transform: scale(1.05);
+    }
+
     @keyframes fadeInCard {
-      from { opacity: 0; transform: scale(0.95); }
-      to   { opacity: 1; transform: scale(1); }
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
     }
 
    
 
     h4 {
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 30px;
-      font-size: 1.3rem;
+      font-weight: var(--font-weight-semibold);
+      color: var(--az-gray-900);
+      margin-bottom: var(--space-4);
+      font-size: var(--font-size-2xl);
       text-align: center;
+      position: relative;
+      padding-bottom: var(--space-2);
+    }
+
+    h4::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--az-primary), var(--az-primary-light));
+      border-radius: 2px;
+    }
+
+    .form-label {
+      font-weight: var(--font-weight-medium);
+      color: var(--az-gray-700);
+      margin-bottom: var(--space-1);
+      font-size: var(--font-size-sm);
     }
 
     .form-control {
-      height: 48px;
-      font-size: 1rem;
+      height: 52px;
+      font-size: var(--font-size-base);
+      border: 2px solid var(--az-gray-300);
+      border-radius: var(--radius-base);
+      padding: 0 1rem;
+      transition: all var(--transition-base);
+    }
+
+    .form-control:focus {
+      border-color: var(--az-primary);
+      box-shadow: 0 0 0 4px rgba(212, 99, 33, 0.1);
+      outline: none;
     }
 
     .btn-orange {
-      background-color: #d46321;
+      background: linear-gradient(135deg, var(--az-primary) 0%, var(--az-primary-dark) 100%);
       border: none;
-      color: #fff;
-      font-weight: 500;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
+      color: var(--az-white);
+      font-weight: var(--font-weight-medium);
+      border-radius: var(--radius-base);
+      padding: 0.875rem 1.5rem;
+      font-size: var(--font-size-base);
+      transition: all var(--transition-base);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-orange::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--az-primary-dark) 0%, var(--az-primary-darker) 100%);
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+
+    .btn-orange:hover::before {
+      opacity: 1;
     }
 
     .btn-orange:hover {
-      background-color: #a9490f;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-orange);
+    }
+
+    .btn-orange:active {
+      transform: translateY(0);
+    }
+
+    .btn-orange span {
+      position: relative;
+      z-index: 1;
     }
 
     .text-end a {
-      font-size: 0.9rem;
-      color: #a9490f;
+      font-size: var(--font-size-sm);
+      color: var(--az-primary-dark);
+      font-weight: var(--font-weight-medium);
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      position: relative;
+    }
+
+    .text-end a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--az-primary);
+      transition: width var(--transition-base);
     }
 
     .text-end a:hover {
-      text-decoration: underline;
+      color: var(--az-primary);
+      text-decoration: none;
+    }
+
+    .text-end a:hover::after {
+      width: 100%;
     }
 
     .password-toggle {
@@ -159,7 +299,9 @@
             </span>
           </div>
   </div>
-      <button type="submit" class="btn btn-orange w-100">Iniciar sesión</button>
+      <button type="submit" class="btn btn-orange w-100">
+        <span>Iniciar sesión</span>
+      </button>
     </form>
 
     <div class="text-end mt-2">
@@ -188,6 +330,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/components.js"></script>
   <script>
 
     function togglePassword() {
